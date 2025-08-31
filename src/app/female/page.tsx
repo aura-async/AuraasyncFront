@@ -308,7 +308,7 @@ const FemaleHome = () => {
                 className="text-center"
               >
                 <h2 className="text-2xl font-bold text-white mb-4">Welcome to AuraaSync</h2>
-                <p className="text-gray-300 mb-6">Let's analyze your style preferences to provide personalized recommendations.</p>
+                <p className="text-gray-300 mb-6">Let&apos;s analyze your style preferences to provide personalized recommendations.</p>
                 <button
                   onClick={() => setCurrentStep(1)}
                   className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
@@ -326,11 +326,7 @@ const FemaleHome = () => {
                 exit={{ opacity: 0, y: -20 }}
               >
                 <FaceAnalysisWidget
-                  onComplete={(value) => handleComplete('face', value)}
-                  onSkip={() => {
-                    setSkipped(prev => ({ ...prev, face: true }));
-                    setCurrentStep(prev => prev + 1);
-                  }}
+                  onComplete={(value) => handleComplete('face', value.face_shape || 'Unknown')}
                 />
               </motion.div>
             )}
@@ -360,11 +356,7 @@ const FemaleHome = () => {
                 exit={{ opacity: 0, y: -20 }}
               >
                 <BodyAnalysisWidget
-                  onComplete={(value) => handleComplete('body', value)}
-                  onSkip={() => {
-                    setSkipped(prev => ({ ...prev, body: true }));
-                    setCurrentStep(prev => prev + 1);
-                  }}
+                  onComplete={(value) => handleComplete('body', value.body_shape || 'Unknown')}
                 />
               </motion.div>
             )}

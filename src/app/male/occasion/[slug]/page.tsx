@@ -31,14 +31,14 @@ const occasionNames: { [key: string]: { name: string; dataFile: string } } = {
 };
 
 interface OccasionPageProps {
-  params: {
+  params: Promise<{
     slug: string;
-  };
+  }>;
 }
 
 // Generate metadata for dynamic routes
 export async function generateMetadata({ params }: OccasionPageProps): Promise<Metadata> {
-  const { slug } = params;
+  const { slug } = await params;
   const occasionData = occasionNames[slug];
   
   if (!occasionData) {
@@ -53,8 +53,8 @@ export async function generateMetadata({ params }: OccasionPageProps): Promise<M
   };
 }
 
-const OccasionPage = ({ params }: OccasionPageProps) => {
-  const { slug } = params;
+const OccasionPage = async ({ params }: OccasionPageProps) => {
+  const { slug } = await params;
   const occasionData = occasionNames[slug];
 
   if (!occasionData) {

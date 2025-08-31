@@ -16,7 +16,7 @@ export default function NotFound() {
           <h1 className="text-4xl md:text-6xl font-bold mb-4">404</h1>
           <h2 className="text-2xl md:text-3xl font-semibold mb-4">Category Not Found</h2>
           <p className="text-gray-300 text-lg mb-8">
-            The outfit category you're looking for doesn't exist or has been moved.
+            The outfit category you&apos;re looking for doesn&apos;t exist or has been moved.
           </p>
         </div>
 
@@ -42,35 +42,35 @@ export default function NotFound() {
               className="p-4 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10 transition-colors"
               onClick={() => router.push('/male/outfit-recommendations/mens-shirts')}
             >
-              <h4 className="font-semibold">Men's Shirts</h4>
+              <h4 className="font-semibold">Men&apos;s Shirts</h4>
               <p className="text-sm text-gray-300">Formal and casual shirts</p>
             </div>
             <div 
               className="p-4 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10 transition-colors"
               onClick={() => router.push('/male/outfit-recommendations/mens-ethnic-wear')}
             >
-              <h4 className="font-semibold">Men's Ethnic Wear</h4>
+              <h4 className="font-semibold">Men&apos;s Ethnic Wear</h4>
               <p className="text-sm text-gray-300">Traditional ethnic clothing</p>
             </div>
             <div 
               className="p-4 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10 transition-colors"
               onClick={() => router.push('/male/outfit-recommendations/mens-bottomwear')}
             >
-              <h4 className="font-semibold">Men's Bottomwear</h4>
+              <h4 className="font-semibold">Men&apos;s Bottomwear</h4>
               <p className="text-sm text-gray-300">Pants, jeans, and trousers</p>
             </div>
             <div 
               className="p-4 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10 transition-colors"
               onClick={() => router.push('/male/outfit-recommendations/mens-tshirts')}
             >
-              <h4 className="font-semibold">Men's T-shirts</h4>
+              <h4 className="font-semibold">Men&apos;s T-shirts</h4>
               <p className="text-sm text-gray-300">Casual and printed t-shirts</p>
             </div>
             <div 
               className="p-4 bg-white/5 rounded-lg cursor-pointer hover:bg-white/10 transition-colors"
               onClick={() => router.push('/male/outfit-recommendations/mens-jackets')}
             >
-              <h4 className="font-semibold">Men's Jackets</h4>
+              <h4 className="font-semibold">Men&apos;s Jackets</h4>
               <p className="text-sm text-gray-300">Blazers and casual jackets</p>
             </div>
           </div>

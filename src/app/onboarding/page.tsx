@@ -27,16 +27,16 @@ import { Check } from "lucide-react";
 import male from "@/app/assets/man-avatar.png";
 import female from "@/app/assets/woman-outline.png";
 
-// Body Type Images
-import HourglassImage from "@/app/assets/Bodytype/Hourglass.PNG";
-import RectangleImage from "@/app/assets/Bodytype/rectangle.PNG";
-import InvertedTriangleImage from "@/app/assets/Bodytype/Inverted triangle.PNG";
-import AppleImage from "@/app/assets/Bodytype/Apple.PNG";
-import PearImage from "@/app/assets/Bodytype/Pear.PNG";
-import MesomorphImage from "@/app/assets/Bodytype/Mesomorph.PNG";
-import EctomorphImage from "@/app/assets/Bodytype/Ectomorph.PNG";
-import TrapezoidImage from "@/app/assets/Bodytype/Trapezoid.PNG";
-import EndomorphImage from "@/app/assets/Bodytype/Endomorph.PNG";
+// Body Type Images - Using placeholder for now
+const HourglassImage = "/placeholder.png";
+const RectangleImage = "/placeholder.png";
+const InvertedTriangleImage = "/placeholder.png";
+const AppleImage = "/placeholder.png";
+const PearImage = "/placeholder.png";
+const MesomorphImage = "/placeholder.png";
+const EctomorphImage = "/placeholder.png";
+const TrapezoidImage = "/placeholder.png";
+const EndomorphImage = "/placeholder.png";
 
 // Onboarding steps
 const STEPS = {
@@ -64,6 +64,7 @@ interface UserData {
   face_shape: string | null;
   body_shape: string | null;
   personality: string | null;
+  onboarding_completed: boolean;
 }
 
 interface Product {
@@ -94,6 +95,7 @@ export default function Onboarding() {
     face_shape: null,
     body_shape: null,
     personality: null,
+    onboarding_completed: false,
   });
 
   // Step 1: Login Component
@@ -142,6 +144,7 @@ export default function Onboarding() {
               face_shape: backendUserData.face_shape || null,
               body_shape: backendUserData.body_shape || null,
               personality: backendUserData.personality || null,
+              onboarding_completed: backendUserData.onboarding_completed || false,
             };
 
             setUserData(userData);
@@ -219,6 +222,7 @@ export default function Onboarding() {
               face_shape: backendUserData.face_shape || null,
               body_shape: backendUserData.body_shape || null,
               personality: backendUserData.personality || null,
+              onboarding_completed: backendUserData.onboarding_completed || false,
             };
 
             setUserData(userData);
@@ -299,6 +303,7 @@ export default function Onboarding() {
                   face_shape: null,
                   body_shape: null,
                   personality: null,
+                  onboarding_completed: false,
                 };
                 setUserData(mockUserData);
                 setUserDataState(mockUserData);
@@ -2607,7 +2612,7 @@ export default function Onboarding() {
                       onClick={() => setCurrentStep(STEPS.COMPLETE)}
                       className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
                     >
-                      <span className="underline">I'll do it later</span>
+                      <span className="underline">I&apos;ll do it later</span>
                     </button>
                   </>
                 ) : (
@@ -2712,7 +2717,7 @@ export default function Onboarding() {
                         onClick={() => setCurrentStep(STEPS.COMPLETE)}
                         className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
                       >
-                        <span className="underline">I'll do it later</span>
+                        <span className="underline">I&apos;ll do it later</span>
                       </button>
 
                       <div className="flex justify-center gap-4 mt-8">
@@ -2796,11 +2801,11 @@ export default function Onboarding() {
                   fashion suggestions.
                 </p>
                 <ul className="list-disc list-inside space-y-1">
-                  <li>16â€"20 questions in total.</li>
-                  <li>Answer honestly â€" no right or wrong answers.</li>
+                  <li>16-20 questions in total.</li>
+                  <li>Answer honestly - no right or wrong answers.</li>
                   <li>Trust your first instinct.</li>
                   <li>Think about your usual behavior.</li>
-                  <li>Estimated time: 5â€"7 minutes.</li>
+                  <li>Estimated time: 5-7 minutes.</li>
                 </ul>
               </div>
             </div>

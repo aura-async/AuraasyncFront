@@ -15,6 +15,7 @@ type CardProps = {
   cardBackgroundColor: string;
   cardBorderColor: string;
   link: string;
+  className?: string;
 };
 
 const Card: React.FC<CardProps> = ({
@@ -26,6 +27,7 @@ const Card: React.FC<CardProps> = ({
   cardBackgroundColor,
   cardBorderColor,
   link,
+  className,
 }) => {
   return (
     <motion.div

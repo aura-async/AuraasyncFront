@@ -882,7 +882,7 @@ export default function HairstyleRecommender() {
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {results[len].length === 0 && (
                   <div className="col-span-full rounded-xl border  backdrop-blur-sm p-6 text-sm opacity-70 text-white">
-                    No matches for "{query}" in {len.toLowerCase()} hair.
+                    No matches for &quot;{query}&quot; in {len.toLowerCase()} hair.
                   </div>
                 )}
                 {results[len].map((style) => (

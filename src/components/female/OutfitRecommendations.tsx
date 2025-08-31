@@ -133,7 +133,7 @@ const OutfitRecommendations = () => {
               <div className="absolute bottom-4 left-4 right-4 z-10">
                 {/* Category pill */}
                 <div className="inline-block rounded-full bg-white text-gray-900 text-xs font-semibold px-3 py-1 shadow">
-                  Women's Ethnic wear
+                  Women&apos;s Ethnic wear
                 </div>
 
                 {/* Headline/description */}

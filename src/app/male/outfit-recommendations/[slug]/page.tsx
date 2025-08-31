@@ -337,7 +337,7 @@ export default function OutfitRecommendationsPage() {
                 {!loading && !error && products.length === 0 && (
                     <div className="py-16 text-center text-gray-200">
                         <h2 className="text-2xl font-bold mb-2">No Products Found</h2>
-                        <p className="text-gray-400 mb-4">We couldn't find any products in this category.</p>
+                        <p className="text-gray-400 mb-4">We couldn&apos;t find any products in this category.</p>
                         <button
                             onClick={handleRefresh}
                             className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"

@@ -27,7 +27,7 @@ const router=useRouter();
   );
 };
 
-const NavIcon = ({ children, className = "", isHovered }) => {
+const NavIcon = ({ children, className = "", isHovered = false }) => {
   const router=useRouter();
   return (
     <div
@@ -58,6 +58,7 @@ const Navbar = ({
   const [isVisible, setIsVisible] = useState(false);
   const [menuTopPosition, setMenuTopPosition] = useState("50%");
   const [landingComplete, setLandingComplete] = useState(false);
+
 
   // ✅ Handle scroll + landing state
   useEffect(() => {
@@ -161,8 +162,9 @@ const Navbar = ({
                   }`}
                 >
                   <NavItem 
-                  
-                  onClick={item.onClick} isMobile={isMobile}>
+                    onClick={item.onClick} 
+                    isMobile={isMobile}
+                  >
                     <NavIcon>{item.icon}</NavIcon>
                   </NavItem>
                 </div>

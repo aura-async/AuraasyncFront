@@ -23,7 +23,7 @@ const SellerPage = () => {
 
       {/* Content */}
       <div className="relative z-10 text-center flex flex-col items-center">
-        <h2 className={`${outfit.className} text-5xl md:text-7xl font-bold leading-tight uppercase outlined-text`}>
+        <h2 className={`${outfit.className} text-5xl md:text-7xl font-bold leading-tight uppercase text-transparent [-webkit-text-stroke:1px_white] [text-stroke:1px_white]`}>
           Curated Style -<br /> Targeted Reach
         </h2>
         <p className="mt-6 mb-8 text-lg max-w-lg">
@@ -35,14 +35,7 @@ const SellerPage = () => {
         </button>
       </div>
 
-      {/* Outlined text style */}
-      <style jsx>{`
-        .outlined-text {
-          color: transparent;
-          -webkit-text-stroke: 1px white;
-          text-stroke: 1px white;
-        }
-      `}</style>
+
     </div>
   );
 };

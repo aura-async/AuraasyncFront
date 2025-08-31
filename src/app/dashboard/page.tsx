@@ -9,6 +9,7 @@ import { signOut } from 'firebase/auth';
 import axios from 'axios';
 import { getUserData, clearUserData } from '@/lib/userState';
 
+
 interface UserData {
   id: number;
   email: string;
@@ -84,8 +85,9 @@ export default function Dashboard() {
     }
   }, [userData, isLoading, error, router]);
 
- const handleLogout = () => {
+ const handleLogout = async () => {
     clearUserData();
+     await signOut(auth);
     router.push('/');
   };
 

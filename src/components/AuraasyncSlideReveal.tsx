@@ -20,7 +20,7 @@ export default function AuraasyncSlideReveal() {
 
     const animateBar = (ts) => {
       if (!start) start = ts;
-      const elapsed = ts - start;
+      const elapsed = ts - (start || ts);
       const percent = Math.min((elapsed / duration) * 100, 100);
       setProgress(percent);
 
@@ -180,7 +180,7 @@ export default function AuraasyncSlideReveal() {
                 id="hero-heading"
                 className="text-3xl md:text-5xl font-bold"
               >
-                Let's Explore Unique Clothes
+                Let&apos;s Explore Unique Clothes
               </h1>
               <p className="mt-4 text-base md:text-lg font-light">
                 According to your style and preference with{" "}

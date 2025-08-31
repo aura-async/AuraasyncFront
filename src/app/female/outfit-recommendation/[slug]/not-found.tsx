@@ -14,7 +14,7 @@ export default function NotFound() {
                     <div className="text-6xl mb-4">🛍️</div>
                     <h1 className="text-4xl md:text-5xl font-bold mb-4">Category Not Found</h1>
                     <p className="text-xl text-gray-300 mb-6">
-                        Sorry, the outfit category you're looking for doesn't exist.
+                        Sorry, the outfit category you&apos;re looking for doesn&apos;t exist.
                     </p>
                 </div>
 
@@ -25,27 +25,27 @@ export default function NotFound() {
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-w-4xl mx-auto">
                         <div className="bg-gray-800 p-4 rounded-lg">
-                            <h3 className="font-semibold mb-2">Women's Dresses</h3>
+                            <h3 className="font-semibold mb-2">Women&apos;s Dresses</h3>
                             <p className="text-sm text-gray-400">Elegant dresses for every occasion</p>
                         </div>
                         <div className="bg-gray-800 p-4 rounded-lg">
-                            <h3 className="font-semibold mb-2">Women's Shirts</h3>
+                            <h3 className="font-semibold mb-2">Women&apos;s Shirts</h3>
                             <p className="text-sm text-gray-400">Stylish shirts for professional and casual wear</p>
                         </div>
                         <div className="bg-gray-800 p-4 rounded-lg">
-                            <h3 className="font-semibold mb-2">Women's Bottomwear</h3>
+                            <h3 className="font-semibold mb-2">Women&apos;s Bottomwear</h3>
                             <p className="text-sm text-gray-400">Comfortable and trendy bottomwear</p>
                         </div>
                         <div className="bg-gray-800 p-4 rounded-lg">
-                            <h3 className="font-semibold mb-2">Women's T-shirts</h3>
+                            <h3 className="font-semibold mb-2">Women&apos;s T-shirts</h3>
                             <p className="text-sm text-gray-400">Casual and comfortable t-shirts</p>
                         </div>
                         <div className="bg-gray-800 p-4 rounded-lg">
-                            <h3 className="font-semibold mb-2">Women's Coats</h3>
+                            <h3 className="font-semibold mb-2">Women&apos;s Coats</h3>
                             <p className="text-sm text-gray-400">Warm and stylish coats</p>
                         </div>
                         <div className="bg-gray-800 p-4 rounded-lg">
-                            <h3 className="font-semibold mb-2">Women's Ethnic Wear</h3>
+                            <h3 className="font-semibold mb-2">Women&apos;s Ethnic Wear</h3>
                             <p className="text-sm text-gray-400">Traditional ethnic wear collection</p>
                         </div>
                     </div>

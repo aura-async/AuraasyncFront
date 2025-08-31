@@ -10,6 +10,7 @@ export default function BottomNavigation() {
   const pathname = usePathname();
 
   const isActive = (path: string) => {
+    if (!pathname) return false;
     if (path === '/female' && pathname === '/female') return true;
     if (path !== '/female' && pathname.startsWith(path)) return true;
     return false;

@@ -298,7 +298,7 @@ export default function OutfitRecommendationsPage() {
                         <div className="text-center mb-8">
                             <div className="text-gray-400 text-6xl mb-4">🛍️</div>
                             <h2 className="text-2xl font-bold mb-2">No Products Found</h2>
-                            <p className="text-gray-300 mb-6">We couldn't find any products in this category.</p>
+                            <p className="text-gray-300 mb-6">We couldn&apos;t find any products in this category.</p>
                             <button
                                 onClick={handleRefresh}
                                 className="px-6 py-3 bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"

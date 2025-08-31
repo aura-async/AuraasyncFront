@@ -84,7 +84,10 @@ const Card = ({ title, description, imageUrl, blobUrl, imagePosition, cardBackgr
               loading="lazy"
               onError={(e) => {
                 console.warn(`Failed to load image: ${imageUrl}`);
-                e.target.style.display = 'none';
+                const target = e.target as HTMLImageElement;
+                if (target) {
+                  target.style.display = 'none';
+                }
               }}
             />
             {blobUrl && (
@@ -105,11 +108,11 @@ const Card = ({ title, description, imageUrl, blobUrl, imagePosition, cardBackgr
 };
 
 const InteractiveCards = () => {
-  const sectionRef = useRef(null);
-  const cardRefs = useRef([]);
+  const sectionRef = useRef<HTMLElement>(null);
+  const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const prefersReducedMotion = useReducedMotion();
-  const scrollbarRef = useRef(null);
-  const marqueeRefs = useRef([]);
+  const scrollbarRef = useRef<HTMLDivElement>(null);
+  const marqueeRefs = useRef<(HTMLDivElement | null)[]>([]);
   const [isAnimationsEnabled, setIsAnimationsEnabled] = useState(true);
 
   const SCROLLBAR_HEIGHT_PX = 300;
@@ -159,6 +162,10 @@ const InteractiveCards = () => {
       console.warn('Required DOM elements not found for scroll animations');
       return;
     }
+
+    // Type assertion after null check
+    const scrollbarElement = scrollbar as HTMLDivElement;
+    const scrollIndicatorElement = scrollIndicator as HTMLElement;
 
     const ctx = gsap.context(() => {
       try {
@@ -251,13 +258,13 @@ const InteractiveCards = () => {
           }, 1);
 
         // Scroll indicator animation
-        const scrollbarHeight = scrollbar.offsetHeight;
-        const indicatorHeight = scrollIndicator.offsetHeight;
+        const scrollbarHeight = scrollbarElement.offsetHeight;
+        const indicatorHeight = scrollIndicatorElement.offsetHeight;
         const availableTravelHeight = scrollbarHeight - indicatorHeight;
         const INDICATOR_MOTION_PERCENTAGE = 1.0;
         const actualTravelDistance = (availableTravelHeight * INDICATOR_MOTION_PERCENTAGE) / 2;
 
-        gsap.fromTo(scrollIndicator,
+        gsap.fromTo(scrollIndicatorElement,
           { y: -actualTravelDistance },
           {
             y: actualTravelDistance,
@@ -307,7 +314,7 @@ const InteractiveCards = () => {
         {/* Top Marquee */}
         <div className="absolute -top-2 md:-top-4 left-0 w-full overflow-hidden whitespace-nowrap font-extrabold text-neutral-700 pointer-events-none">
           <div 
-            ref={el => marqueeRefs.current[0] = el}
+            ref={(el) => { marqueeRefs.current[0] = el; }}
             className="text-[12vw]  sm:text-[8vw] md:text-[7vw] lg:text-[6vw] xl:text-[5.5vw] 2xl:text-[7vw] font-extrabold text-neutral-700 whitespace-nowrap inline-block will-change-transform"
           >
             FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE |
@@ -352,7 +359,7 @@ const InteractiveCards = () => {
         {/* Bottom Marquee */}
         <div className="absolute -bottom-2 md:-bottom-4 left-0 w-full overflow-hidden whitespace-nowrap font-extrabold text-neutral-700 pointer-events-none">
           <div 
-            ref={el => marqueeRefs.current[1] = el}
+            ref={(el) => { marqueeRefs.current[1] = el; }}
             className="text-[12vw] sm:text-[8vw] md:text-[7vw] lg:text-[6vw] xl:text-[5.5vw] 2xl:text-[7vw] font-extrabold text-neutral-700 whitespace-nowrap inline-block will-change-transform"
           >
             FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE |
