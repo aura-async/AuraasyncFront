@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Webcam from "react-webcam";
 import { signInWithPopup, signOut, onAuthStateChanged, User } from "firebase/auth";
 import { auth, googleProvider } from "../../lib/firebase";
+import axios from "axios";
 import {
   setUserData,
   updateUserData,
@@ -108,21 +109,70 @@ export default function Onboarding() {
         const result = await signInWithPopup(auth, googleProvider);
         
         if (result.user) {
-          const userData: UserData = {
-            email: result.user.email || "",
-            name: result.user.displayName || "",
-            gender: "",
-            location: "Mumbai", // Default location
-            skin_tone: "",
-            face_shape: null,
-            body_shape: null,
-            personality: null,
-            onboarding_completed: false,
-          };
+          // Get the Firebase ID token
+          const idToken = await result.user.getIdToken();
+          
+          // Call backend API to verify token and create/update user
+          const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+          
+          try {
+            const response = await axios.post(
+              `${API_URL}/auth/verify-user`,
+              {
+                email: result.user.email,
+                name: result.user.displayName,
+                profile_picture: result.user.photoURL,
+                firebase_id: result.user.uid
+              },
+              {
+                headers: {
+                  'Authorization': `Bearer ${idToken}`,
+                  'Content-Type': 'application/json'
+                }
+              }
+            );
 
-          setUserData(userData);
-          setUserDataState(userData);
-          setCurrentStep(STEPS.BASIC_INFO);
+            const backendUserData = response.data;
+            
+            // Create user data for frontend state
+            const userData: UserData = {
+              email: backendUserData.email || result.user.email || "",
+              name: backendUserData.name || result.user.displayName || "",
+              gender: backendUserData.gender || "",
+              location: backendUserData.location || "Mumbai", // Default location
+              skin_tone: backendUserData.skin_tone || "",
+              face_shape: backendUserData.face_shape || null,
+              body_shape: backendUserData.body_shape || null,
+              personality: backendUserData.personality || null,
+              onboarding_completed: backendUserData.onboarding_completed || false,
+            };
+
+            setUserData(userData);
+            setUserDataState(userData);
+            
+            // If user is new, proceed to onboarding
+            if (backendUserData.is_new_user) {
+              setCurrentStep(STEPS.BASIC_INFO);
+            } else if (backendUserData.onboarding_completed) {
+              // If onboarding is completed, redirect to appropriate page
+              router.push(backendUserData.gender === "male" ? "/male" : "/female");
+            } else {
+              // If user exists but onboarding is not completed
+              setCurrentStep(STEPS.BASIC_INFO);
+            }
+            
+            console.log("User authenticated and verified:", backendUserData);
+            
+          } catch (apiError: any) {
+            console.error("Backend API error:", apiError);
+            if (apiError.response?.status === 401) {
+              alert("Authentication failed. Please try again.");
+            } else {
+              alert("Failed to verify user with backend. Please try again.");
+            }
+            // Sign out the user if backend verification fails
+            await signOut(auth);
+          }
         }
       } catch (error: any) {
         console.error("Google login error:", error);
@@ -138,12 +188,67 @@ export default function Onboarding() {
 
     // Listen for auth state changes
     React.useEffect(() => {
-      const unsubscribe = onAuthStateChanged(auth, (user) => {
+      const unsubscribe = onAuthStateChanged(auth, async (user) => {
         setUser(user);
+        
+        // If user is already authenticated, verify with backend
+        if (user) {
+          try {
+            const idToken = await user.getIdToken();
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            
+            const response = await axios.post(
+              `${API_URL}/auth/verify-user`,
+              {
+                email: user.email,
+                name: user.displayName,
+                profile_picture: user.photoURL,
+                firebase_id: user.uid
+              },
+              {
+                headers: {
+                  'Authorization': `Bearer ${idToken}`,
+                  'Content-Type': 'application/json'
+                }
+              }
+            );
+
+            const backendUserData = response.data;
+            
+            // Create user data for frontend state
+            const userData: UserData = {
+              email: backendUserData.email || user.email || "",
+              name: backendUserData.name || user.displayName || "",
+              gender: backendUserData.gender || "",
+              location: backendUserData.location || "Mumbai",
+              skin_tone: backendUserData.skin_tone || "",
+              face_shape: backendUserData.face_shape || null,
+              body_shape: backendUserData.body_shape || null,
+              personality: backendUserData.personality || null,
+              onboarding_completed: backendUserData.onboarding_completed || false,
+            };
+
+            setUserData(userData);
+            setUserDataState(userData);
+            
+            // If onboarding is completed, redirect to appropriate page
+            if (backendUserData.onboarding_completed) {
+              router.push(backendUserData.gender === "male" ? "/male" : "/female");
+            } else if (!backendUserData.is_new_user) {
+              // If user exists but onboarding is not completed, continue from where they left off
+              setCurrentStep(STEPS.BASIC_INFO);
+            }
+            
+          } catch (error) {
+            console.error("Failed to verify user with backend:", error);
+            // If backend verification fails, sign out the user
+            await signOut(auth);
+          }
+        }
       });
 
       return () => unsubscribe();
-    }, []);
+    }, [router]);
 
     return (
       <motion.div
@@ -329,7 +434,7 @@ export default function Onboarding() {
     const [localName, setLocalName] = useState(userData.name || "");
     const [localGender, setLocalGender] = useState(userData.gender || "");
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
       e.preventDefault();
       if (localName && localGender) {
         const updatedData = {
@@ -337,8 +442,38 @@ export default function Onboarding() {
           name: localName,
           gender: localGender,
         };
+        
+        // Update local state
         updateUserData(updatedData);
-        setUserDataState(updatedData); // sync only once here
+        setUserDataState(updatedData);
+        
+        // Sync with backend
+        try {
+          const currentUser = auth.currentUser;
+          if (currentUser) {
+            const idToken = await currentUser.getIdToken();
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            
+            await axios.put(
+              `${API_URL}/auth/update-onboarding`,
+              {
+                name: localName,
+                gender: localGender,
+                onboarding_completed: false
+              },
+              {
+                headers: {
+                  'Authorization': `Bearer ${idToken}`,
+                  'Content-Type': 'application/json'
+                }
+              }
+            );
+          }
+        } catch (error) {
+          console.error("Failed to sync with backend:", error);
+          // Continue with onboarding even if backend sync fails
+        }
+        
         setCurrentStep(STEPS.SKIN_FACE_ANALYSIS);
       }
     };
@@ -557,11 +692,39 @@ export default function Onboarding() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    const handleNext = () => {
+    const handleNext = async () => {
       if (analysisData.skin_tone) {
         const updatedData = { ...userData, ...analysisData };
         updateUserData(updatedData);
         setUserDataState(updatedData);
+        
+        // Sync with backend
+        try {
+          const currentUser = auth.currentUser;
+          if (currentUser) {
+            const idToken = await currentUser.getIdToken();
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+            
+            await axios.put(
+              `${API_URL}/auth/update-onboarding`,
+              {
+                skin_tone: analysisData.skin_tone,
+                face_shape: analysisData.face_shape,
+                onboarding_completed: false
+              },
+              {
+                headers: {
+                  'Authorization': `Bearer ${idToken}`,
+                  'Content-Type': 'application/json'
+                }
+              }
+            );
+          }
+        } catch (error) {
+          console.error("Failed to sync with backend:", error);
+          // Continue with onboarding even if backend sync fails
+        }
+        
         setCurrentStep(STEPS.BODY_ANALYSIS);
       }
     };
@@ -1541,10 +1704,37 @@ export default function Onboarding() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
-    const handleNext = () => {
+    const handleNext = async () => {
       const updatedData = { ...userData, body_shape: analysisData.body_shape };
       updateUserData(updatedData);
       setUserDataState(updatedData);
+      
+      // Sync with backend
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const idToken = await currentUser.getIdToken();
+          const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+          
+          await axios.put(
+            `${API_URL}/auth/update-onboarding`,
+            {
+              body_shape: analysisData.body_shape,
+              onboarding_completed: false
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+        }
+      } catch (error) {
+        console.error("Failed to sync with backend:", error);
+        // Continue with onboarding even if backend sync fails
+      }
+      
       setCurrentStep(STEPS.PERSONALITY_ANALYSIS);
     };
 
@@ -2399,10 +2589,37 @@ export default function Onboarding() {
     const [showPersonalityInstructions, setShowPersonalityInstructions] =
       useState(false);
 
-    const handleNext = (personalityType: string) => {
+    const handleNext = async (personalityType: string) => {
       const updatedData = { ...userData, personality: personalityType };
       updateUserData(updatedData);
       setUserDataState(updatedData);
+      
+      // Sync with backend
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const idToken = await currentUser.getIdToken();
+          const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+          
+          await axios.put(
+            `${API_URL}/auth/update-onboarding`,
+            {
+              personality: personalityType,
+              onboarding_completed: false
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+        }
+      } catch (error) {
+        console.error("Failed to sync with backend:", error);
+        // Continue with onboarding even if backend sync fails
+      }
+      
       setCurrentStep(STEPS.COMPLETE);
     };
 
@@ -2639,8 +2856,34 @@ export default function Onboarding() {
 
   // Step 6: Complete Component
   const CompleteStep = ({ userData }: any) => {
-    const handleComplete = () => {
+    const handleComplete = async () => {
       markOnboardingCompleted();
+      
+      // Mark onboarding as completed in backend
+      try {
+        const currentUser = auth.currentUser;
+        if (currentUser) {
+          const idToken = await currentUser.getIdToken();
+          const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+          
+          await axios.put(
+            `${API_URL}/auth/update-onboarding`,
+            {
+              onboarding_completed: true
+            },
+            {
+              headers: {
+                'Authorization': `Bearer ${idToken}`,
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+        }
+      } catch (error) {
+        console.error("Failed to mark onboarding as completed:", error);
+        // Continue with redirect even if backend sync fails
+      }
+      
       // Redirect to gender-specific homepage
       router.push(userData.gender === "male" ? "/male" : "/female");
     };
