@@ -1,0 +1,21 @@
+{
+  "name": "Auraasync - AI-Powered Fashion Analysis",
+  "short_name": "Auraasync",
+  "description": "Discover your unique fashion personality with AI-powered body analysis, face shape detection, and personalized style recommendations",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "any",
+      "type": "image/x-icon",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["fashion", "lifestyle", "shopping"],
+  "lang": "en",
+  "dir": "ltr"
+}
