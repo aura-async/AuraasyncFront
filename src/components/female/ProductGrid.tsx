@@ -178,11 +178,11 @@ const ProductCard = ({ product }: { product: Product }) => {
         </div>
       
         {/* Product Image */}
-        <div className="flex-1 relative flex items-center justify-center">
+        <div className="flex-1 relative flex items-center bg-white justify-center">
           <img
             src={product.image}
             alt={product.title}
-            className="w-full h-[400px] object-cover rounded-lg transition-transform duration-500 group-hover:scale-105"
+            className="w-full h-[400px] object-contain rounded-lg transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
           />
         </div>

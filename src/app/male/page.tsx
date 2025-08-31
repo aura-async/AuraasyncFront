@@ -45,7 +45,7 @@ interface Product {
 const Hero = () => {
   return (
    <>
-   <GenderNavbar gender='male'/>
+  
       <HeroSectionMale/>
       <OutfitRecommendations/>
       <OccasionRecommendations/>
@@ -364,14 +364,7 @@ export default function MaleLanding() {
   return (
     <div className="min-h-screen bg-black">
       {/* Navbar for mobile */}
-      <Navbar 
-        items={[
-          { icon: <span>🏠</span>, label: "Home", onClick: () => window.location.href = '/male' },
-          { icon: <span>🔍</span>, label: "Search", onClick: () => window.location.href = '/search' },
-          { icon: <span>💇</span>, label: "Hairstyle", onClick: () => window.location.href = '/hairstyle' },
-          { icon: <span>⚙️</span>, label: "Dashboard", onClick: () => window.location.href = '/dashboard' },
-        ]}
-      />
+    
  
         <MaleHome />
 

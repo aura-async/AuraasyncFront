@@ -881,23 +881,23 @@ export default function HairstyleRecommender() {
               <h2 className="mb-3 text-lg font-semibold text-white">{len} Hair</h2>
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {results[len].length === 0 && (
-                  <div className="col-span-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm p-6 text-sm opacity-70 text-white">
+                  <div className="col-span-full rounded-xl border  backdrop-blur-sm p-6 text-sm opacity-70 text-white">
                     No matches for "{query}" in {len.toLowerCase()} hair.
                   </div>
                 )}
                 {results[len].map((style) => (
-                  <article key={style.name} className="group overflow-hidden rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm shadow-sm transition hover:shadow-md hover:bg-white/20">
-                    <div className="relative h-48 w-full">
+                  <article key={style.name} className="group overflow-hidden rounded-2xl  shadow-sm transition hover:shadow-md hover:bg-white/20">
+                    <div className="relative h-[300px] w-full">
                       {/* Replace with your images; next/image optimizes automatically */}
                       <Image
                         src={style.image}
                         alt={style.name}
                         fill
-                        className="object-cover"
+                        className="object-contain"
                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                       />
                     </div>
-                    <div className="p-4">
+                    <div className="p-4 text-center">
                       <div className="text-base font-medium text-white">{style.name}</div>
                       <p className="mt-1 text-sm opacity-80 text-white">{style.description}</p>
                     </div>
@@ -907,11 +907,7 @@ export default function HairstyleRecommender() {
             </section>
           ))}
 
-          <div className="rounded-2xl border border-white/20 bg-white/10 backdrop-blur-sm p-4 text-xs opacity-70 text-white">
-            Tip: Replace images by updating <code className="bg-white/20 px-1 rounded">image</code> fields in the DATA map or by keeping the same
-            filenames inside <code className="bg-white/20 px-1 rounded">{IMAGE_BASE}</code>. You can also wire this UI to your FastAPI endpoint and fetch
-            the JSON instead of using the in‑file constant.
-          </div>
+          
         </div>
       )}
 

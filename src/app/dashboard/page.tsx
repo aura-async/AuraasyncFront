@@ -7,6 +7,7 @@ import Navbar from '@/components/Navbar';
 import { auth } from '../../lib/firebase';
 import { signOut } from 'firebase/auth';
 import axios from 'axios';
+import { getUserData, clearUserData } from '@/lib/userState';
 
 interface UserData {
   id: number;
@@ -83,15 +84,11 @@ export default function Dashboard() {
     }
   }, [userData, isLoading, error, router]);
 
-  const handleLogout = async () => {
-    try {
-      await signOut(auth);
-      router.push('/');
-    } catch (error) {
-      console.error('Error signing out:', error);
-      router.push('/');
-    }
+ const handleLogout = () => {
+    clearUserData();
+    router.push('/');
   };
+
 
   const handleRefresh = () => {
     fetchUserData();
@@ -143,7 +140,7 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-black text-white p-8 pb-20">
+    <div className="min-h-screen bg-[#251F1E] text-white p-8 pb-20">
       {/* Navbar for mobile */}
       <Navbar 
         items={[
@@ -251,9 +248,9 @@ export default function Dashboard() {
             <div className="space-y-3">
               <button
                 onClick={() => router.push(`/${userData.gender}`)}
-                className="w-full bg-gradient-to-r from-blue-500 to-purple-600 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
+                className="w-full bg-white/10 border border-white/30 text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
               >
-                🏠 Go to Homepage
+                 Go to Homepage
               </button>
               <button
                 onClick={() => router.push('/search')}

@@ -60,7 +60,7 @@ const Card = ({ title, description, imageUrl, blobUrl, imagePosition, cardBackgr
     >
       <Link href={link} className="block h-full">
         <div
-          className={`flex relative h-full flex-col md:flex-row items-center gap-y-6 md:gap-x-8 ${
+          className={`flex relative h-full flex-col md:flex-row justify-center items-center gap-y-6 md:gap-x-8 ${
             imagePosition === 'right' ? '' : 'md:flex-row-reverse'
           }`}
         >
@@ -308,14 +308,14 @@ const InteractiveCards = () => {
         <div className="absolute -top-2 md:-top-4 left-0 w-full overflow-hidden whitespace-nowrap font-extrabold text-neutral-700 pointer-events-none">
           <div 
             ref={el => marqueeRefs.current[0] = el}
-            className="text-[12vw] sm:text-[8vw] md:text-[7vw] lg:text-[6vw] xl:text-[5.5vw] 2xl:text-[7vw] font-extrabold text-neutral-700 whitespace-nowrap inline-block will-change-transform"
+            className="text-[12vw]  sm:text-[8vw] md:text-[7vw] lg:text-[6vw] xl:text-[5.5vw] 2xl:text-[7vw] font-extrabold text-neutral-700 whitespace-nowrap inline-block will-change-transform"
           >
             FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE |
           </div>
         </div>
 
-        <div className="relative w-full h-full flex items-center justify-center">
-          <div className="relative w-full h-full">
+        <div className="relative  w-full h-full flex items-center justify-center">
+          <div className="relative  w-full h-full">
             {cards.map((card, i) => (
               <div
                 key={i}

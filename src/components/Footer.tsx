@@ -52,7 +52,7 @@ const Footer = () => {
               <ul className="space-y-6">
                 <li>
                   <a
-                    href="https://instagram.com"
+                    href="https://www.instagram.com/auraasync_official?igsh=ZG9pNWRhZGljMHc3 "
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-300 hover:text-white transition-colors text-base"
@@ -62,7 +62,7 @@ const Footer = () => {
                 </li>
                 <li>
                   <a
-                    href="https://linkedin.com"
+                    href="https://www.linkedin.com/company/auraasync/"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-gray-300 hover:text-white transition-colors text-base"
@@ -71,12 +71,12 @@ const Footer = () => {
                   </a>
                 </li>
                 <li>
-                  <a
+                  {/* <a
                     href="#"
                     className="text-gray-300 hover:text-white transition-colors text-base"
                   >
                     Ayraa
-                  </a>
+                  </a> */}
                 </li>
               </ul>
             </div>

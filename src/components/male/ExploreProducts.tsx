@@ -190,11 +190,11 @@ const ProductCard = ({ product }: { product: Product }) => {
             rel="noopener noreferrer"
             className="cursor-pointer group"
         >
-            <div className="relative overflow-hidden">
+            <div className="relative overflow-hidden bg-white">
                 <img
                     src={product.image}
                     alt={product.title}
-                    className="w-full h-[374px] object-cover transition-transform duration-500 group-hover:scale-105"
+                    className="w-full h-[374px] object-contain transition-transform duration-500 group-hover:scale-105"
                 />
                 <div className='h-[374px] absolute z-10 top-0 left-0 w-full'>
                     <div className='h-1/2'></div>

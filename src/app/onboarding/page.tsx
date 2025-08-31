@@ -64,7 +64,6 @@ interface UserData {
   face_shape: string | null;
   body_shape: string | null;
   personality: string | null;
-  onboarding_completed: boolean;
 }
 
 interface Product {
@@ -95,7 +94,6 @@ export default function Onboarding() {
     face_shape: null,
     body_shape: null,
     personality: null,
-    onboarding_completed: false,
   });
 
   // Step 1: Login Component
@@ -144,7 +142,6 @@ export default function Onboarding() {
               face_shape: backendUserData.face_shape || null,
               body_shape: backendUserData.body_shape || null,
               personality: backendUserData.personality || null,
-              onboarding_completed: backendUserData.onboarding_completed || false,
             };
 
             setUserData(userData);
@@ -152,10 +149,7 @@ export default function Onboarding() {
             
             // If user is new, proceed to onboarding
             if (backendUserData.is_new_user) {
-      setCurrentStep(STEPS.BASIC_INFO);
-            } else if (backendUserData.onboarding_completed) {
-              // If onboarding is completed, redirect to appropriate page
-              router.push(backendUserData.gender === "male" ? "/male" : "/female");
+              setCurrentStep(STEPS.BASIC_INFO);
             } else {
               // If user exists but onboarding is not completed
               setCurrentStep(STEPS.BASIC_INFO);
@@ -225,17 +219,13 @@ export default function Onboarding() {
               face_shape: backendUserData.face_shape || null,
               body_shape: backendUserData.body_shape || null,
               personality: backendUserData.personality || null,
-              onboarding_completed: backendUserData.onboarding_completed || false,
             };
 
             setUserData(userData);
             setUserDataState(userData);
             
-            // If onboarding is completed, redirect to appropriate page
-            if (backendUserData.onboarding_completed) {
-              router.push(backendUserData.gender === "male" ? "/male" : "/female");
-            } else if (!backendUserData.is_new_user) {
-              // If user exists but onboarding is not completed, continue from where they left off
+            // If user exists but onboarding is not completed, continue from where they left off
+            if (!backendUserData.is_new_user) {
               setCurrentStep(STEPS.BASIC_INFO);
             }
             
@@ -309,7 +299,6 @@ export default function Onboarding() {
                   face_shape: null,
                   body_shape: null,
                   personality: null,
-                  onboarding_completed: false,
                 };
                 setUserData(mockUserData);
                 setUserDataState(mockUserData);
@@ -975,8 +964,6 @@ export default function Onboarding() {
       </div>
     );
 
-
-
     const SkinToneManualInput = () => {
       const [currentQuestion, setCurrentQuestion] = useState(0);
       const [answers, setAnswers] = useState<string[]>([]);
@@ -1127,13 +1114,13 @@ export default function Onboarding() {
                   }}
                   className="mt-4 w-full text-gray-300 underline text-sm"
                 >
-                  â† Back to previous question
+                  ← Back to previous question
                 </button>
               )}
             </div>
           ) : (
             <div className="text-center">
-              <div className="text-4xl mb-4">âœ¨</div>
+              <div className="text-4xl mb-4">✨</div>
               <h4 className="text-lg font-medium mb-2">Analysis Complete!</h4>
               <p className="text-gray-300 mb-4">
                 Your skin tone has been determined based on your answers.
@@ -1312,7 +1299,7 @@ export default function Onboarding() {
 
         <div className="w-full flex flex-col md:flex-row gap-6">
           {/* LEFT PANEL: IMAGE / CAMERA / UPLOAD */}
-          <div className="md:w-[65%] w-full flex items-center justify-center h-[60vh] md:h-[80vh] relative rounded-lg overflow-hidden ">
+          <div className="md:w-[65%] w-full flex items-center justify-center h-[60vh] md:h-[80vh] relative rounded-lg overflow-hidden">
             {showUpload && uploadedImage ? (
               <Image
                 src={uploadedImage}
@@ -1320,12 +1307,12 @@ export default function Onboarding() {
                 fill
                 className="object-contain"
               />
-            ) : currentAnalysis === "face_shape" && !showManualInput && !showUpload ? (
-              <CameraAnalysis />
             ) : showManualInput && currentAnalysis === "skin_tone" ? (
               <SkinToneManualInput />
             ) : showManualInput && currentAnalysis === "face_shape" ? (
               <FaceShapeManualInput />
+            ) : currentAnalysis === "face_shape" && !showManualInput && !showUpload ? (
+              <CameraAnalysis />
             ) : (
               <Image
                 src={FacePhoto}
@@ -1339,7 +1326,40 @@ export default function Onboarding() {
           {/* RIGHT PANEL: CONTROLS */}
           <div className="md:w-[35%] w-full flex flex-col space-y-6">
             {/* Instructions */}
+              <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
+                        <h3 className="text-lg font-bold mb-3">
+                          Analysis Status
+                        </h3>
+                        <div className="space-y-2">
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm">Skin Tone:</span>
+                            <span
+                              className={`text-sm px-2 py-1 rounded ${
+                                analysisData.skin_tone
+                                  ? "bg-green-500/20 text-green-300"
+                                  : "bg-gray-500/20 text-gray-300"
+                              }`}
+                            >
+                              {analysisData.skin_tone || "Pending"}
+                            </span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm">Face Shape:</span>
+                            <span
+                              className={`text-sm px-2 py-1 rounded ${
+                                analysisData.face_shape
+                                  ? "bg-green-500/20 text-green-300"
+                                  : "bg-yellow-500/20 text-yellow-300"
+                              }`}
+                            >
+                              {analysisData.face_shape || "Optional"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
             <div className="w-full bg-[#444141] p-5 rounded-3xl text-white">
+
+              
               <h1 className="text-xl font-bold mb-4">
                 Face & Skin Analysis Instructions
               </h1>
@@ -1377,12 +1397,20 @@ export default function Onboarding() {
             </button>
 
             {/* Manual Input */}
-            <button
-              onClick={() => handleManualInput("skin_tone")}
-              className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              <span className="underline">Or Insert Manually</span>
-            </button>
+                    <div className="flex  items-center gap-8 justify-between">
+                       <button
+                        onClick={() => handleManualInput("skin_tone")}
+                        className=" text-white w-full py-3 rounded hover:bg-gray-700 transition-colors"
+                      >
+                        <span className="underline"> Insert Skin Tone Manually</span>
+                      </button>
+                      <button
+                        onClick={() => handleManualInput("face_shape")}
+                        className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                      >
+                        <span className="underline"> Insert Face Shape Manually</span>
+                      </button>
+               </div>
 
             {/* Navigation */}
             <div className="flex justify-between gap-4 mt-6">
@@ -1469,6 +1497,12 @@ export default function Onboarding() {
 
                     {/* Content Section - Now Below */}
                     <div className="w-full flex flex-col space-y-4">
+                        <button
+                        onClick={() => setShowFaceInstructions(true)}
+                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555555] transition-all"
+                      >
+                        Instructions
+                      </button>
                       {/* Analysis Status */}
                       <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
                         <h3 className="text-lg font-bold mb-3">
@@ -1519,9 +1553,10 @@ export default function Onboarding() {
                       >
                         Capture from Web Camera
                       </button>
-                      <button
+               <div className=" justify-between  ">
+                       <button
                         onClick={() => handleManualInput("skin_tone")}
-                        className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                        className=" text-white w-full py-3 rounded hover:bg-gray-700 transition-colors"
                       >
                         <span className="underline"> Insert Skin Tone Manually</span>
                       </button>
@@ -1531,12 +1566,8 @@ export default function Onboarding() {
                       >
                         <span className="underline"> Insert Face Shape Manually</span>
                       </button>
-                      <button
-                        onClick={() => setShowFaceInstructions(true)}
-                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555555] transition-all"
-                      >
-                        Instructions
-                      </button>
+               </div>
+                    
                       <button
                         onClick={() => {
                           // Skip face analysis, only do skin tone
@@ -1554,14 +1585,14 @@ export default function Onboarding() {
                       <div className="flex justify-center gap-4 mt-8">
                         <button
                           onClick={() => setCurrentStep(STEPS.BASIC_INFO)}
-                          className="px-8 py-3 rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
+                          className="px-8 py-3 w-full rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
                         >
                           Back
                         </button>
                         <button
                           onClick={handleNext}
                           disabled={!analysisData.skin_tone}
-                          className="px-8 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-600 hover:to-purple-700 transition-all"
+                          className="px-8 py-3 w-full rounded-lg bg-[white]/10 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-600 hover:to-purple-700 transition-all"
                         >
                           Next
                         </button>
@@ -1587,13 +1618,13 @@ export default function Onboarding() {
                 <div className="bg-[#444141] rounded-xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
                   <div className="flex justify-between items-center mb-4">
                     <h3 className="text-xl font-bold text-white">
-                     ¸ Face & Skin Analysis Instructions
+                      ✨ Face & Skin Analysis Instructions
                     </h3>
                     <button
                       onClick={() => setShowFaceInstructions(false)}
                       className="text-white hover:text-gray-300 text-2xl"
                     >
-                      Ã—
+                      ×
                     </button>
                   </div>
                   <div className="text-white text-sm space-y-3">
@@ -1612,7 +1643,7 @@ export default function Onboarding() {
                       <li>Stay still for a few seconds while we scan.</li>
                     </ul>
                     <p className="mt-4">
-                      âœ¨ <span className="font-semibold">Tip:</span> Natural
+                      ✨ <span className="font-semibold">Tip:</span> Natural
                       daylight works best for accurate skin tone detection.
                     </p>
                   </div>
@@ -2176,43 +2207,42 @@ export default function Onboarding() {
           exit={{ opacity: 0, y: -20 }}
           className="min-h-screen hidden md:flex bg-[#251F1E] items-center justify-center text-white p-4 md:p-8"
         >
-          <div className="max-w-4xl mx-auto flex flex-col items-center">
-            <div className="w-full">
+          <div className="mx-auto flex flex-col items-center w-full">
+            {/* Progress */}
+            <div className="w-full mb-6">
               <ProgressBar currentStep={STEPS.BODY_ANALYSIS} />
             </div>
 
-            {/* Show upload analysis if active */}
-            {showUpload && currentAnalysis && (
-              <div className="mb-8">
-                <UploadAnalysis />
+            <div className="w-full flex flex-col md:flex-row gap-6">
+              {/* LEFT PANEL: IMAGE / CAMERA / UPLOAD */}
+              <div className="md:w-[65%] w-full flex items-center justify-center h-[60vh] md:h-[80vh] relative rounded-lg overflow-hidden">
+                {showUpload && uploadedImage ? (
+                  <Image
+                    src={uploadedImage}
+                    alt="Uploaded body"
+                    fill
+                    className="object-contain"
+                  />
+                ) : showManualInput && currentAnalysis === "body_shape" ? (
+                  <BodyShapeManualInput
+                    userData={userData}
+                    handleManualSelection={handleManualSelection}
+                  />
+                ) : currentAnalysis === "body_shape" && !showManualInput && !showUpload ? (
+                  <CameraAnalysis />
+                ) : (
+                  <Image
+                    src={BodyPhoto}
+                    alt="Placeholder Body"
+                    fill
+                    className="object-contain"
+                  />
+                )}
               </div>
-            )}
 
-            {/* Show camera analysis if active */}
-            {currentAnalysis && !showManualInput && !showUpload && (
-              <div className="mb-8">
-                <CameraAnalysis />
-              </div>
-            )}
-
-            {/* Show manual input if active */}
-            {showManualInput && currentAnalysis === "body_shape" && (
-              <BodyShapeManualInput
-                userData={userData}
-                handleManualSelection={handleManualSelection}
-              />
-            )}
-
-            {/* Show analysis options if no analysis is active */}
-            {!currentAnalysis && !showManualInput && (
-              <div className="w-full md:w-[100vw] md:h-[80vh] gap-8">
-                {/* Body Analysis */}
-                <div className=" backdrop-blur-lg rounded-xl p-6">
-                  <div className="flex flex-col md:flex-row gap-6 items-start">
-                    {/* Left Section - Webcam/Upload Options */}
-                    <div className="md:w-1/2 w-full flex flex-col space-y-4">
-                      {/* Analysis Status */}
-                      <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
+              {/* RIGHT PANEL: CONTROLS */}
+              <div className="md:w-[35%] w-full flex flex-col space-y-6">
+                 <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
                         <h3 className="text-lg font-bold mb-3">
                           Analysis Status
                         </h3>
@@ -2231,95 +2261,72 @@ export default function Onboarding() {
                           </div>
                         </div>
                       </div>
+                
+                {/* Instructions */}
+                <div className="w-full bg-[#444141] p-5 rounded-3xl text-white">
+                  <h1 className="text-xl font-bold mb-4">
+                    Body Shape Analysis Instructions
+                  </h1>
+                  <ul className="list-disc list-inside text-sm space-y-2 mb-3">
+                    <li>Wear fitted or light clothing (avoid bulky outfits).</li>
+                    <li>Stand straight in front of the camera.</li>
+                    <li>Keep the background clear (avoid clutter).</li>
+                    <li>Ensure full body is visible in frame.</li>
+                  </ul>
+                  <p className="text-sm">
+                    ✨ <span className="font-semibold">Tip:</span> Stand about 2-3 meters away for better results.
+                  </p>
+                </div>
 
-                      <div className="w-full h-auto bg-[#444141] p-6 rounded-3xl backdrop-blur-lg text-white">
-                        <h1 className="text-xl font-bold mb-4">
-                          Body Shape Analysis Instructions
-                        </h1>
-                        <p className="text-sm mb-3">
-                          Follow these steps for best accuracy:
-                        </p>
-                        <ul className="list-disc list-inside text-sm space-y-1 mb-3">
-                          <li>
-                            Wear fitted or light clothing (avoid bulky outfits).
-                          </li>
-                          <li>Stand straight in front of the camera.</li>
-                          <li>Keep the background clear (avoid clutter).</li>
-                          <li>Ensure full body is visible in frame.</li>
-                        </ul>
-                        <p className="text-sm">
-                         <span className="font-semibold">Tip:</span> Stand
-                          about  meters away for better results.
-                        </p>
-                      </div>
+                {/* Upload Section */}
+                <div className="flex flex-col items-center bg-[#444141] p-4 rounded-3xl text-center">
+                  <h1 className="text-lg font-bold mb-3">
+                    Upload picture from your device
+                  </h1>
+                  <button
+                    onClick={() => startAnalysis("body_shape", "upload")}
+                    className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
+                  >
+                    Upload +
+                  </button>
+                </div>
 
-                      <div className="flex bg-[#444141] p-6 rounded-3xl justify-center items-center flex-col">
-                        <h1 className="text-xl font-bold mb-4 text-center">
-                          Upload picture from your device
-                        </h1>
-                        <button
-                          onClick={() => startAnalysis("body_shape", "upload")}
-                          className="border-2 border-white px-16 text-white py-3 rounded-full font-semibold hover:border-white hover:from-green-600 hover:to-emerald-700 transition-all"
-                        >
-                          Upload Photo +
-                        </button>
-                      </div>
+                {/* Camera Button */}
+                <button
+                  onClick={() => startAnalysis("body_shape", "camera")}
+                  className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
+                >
+                  Capture from Web Camera
+                </button>
 
-                      <button
-                        onClick={() => startAnalysis("body_shape", "camera")}
-                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
-                      >
-                        Capture from Web Camera
-                      </button>
+                {/* Manual Input */}
+                <button
+                  onClick={() => handleManualInput("body_shape")}
+                  className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  <span className="underline">Or Insert Manually</span>
+                </button>
 
-                      <button
-                        onClick={() => handleManualInput("body_shape")}
-                        className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
-                      >
-                        <span className="underline"> Manual Selection</span>
-                      </button>
-
-                      {/* <button
-                         onClick={() => setShowBodyInstructions(true)}
-                         className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555555] transition-all"
-                       >
-                         ðŸ"‹ Instructions
-                       </button> */}
-
-                      <div className="flex justify-center gap-4 mt-8">
-                        <button
-                          onClick={() =>
-                            setCurrentStep(STEPS.SKIN_FACE_ANALYSIS)
-                          }
-                          className="px-8 py-3 w-full rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
-                        >
-                          Back
-                        </button>
-                        <button
-                          onClick={handleNext}
-                          disabled={!analysisData.body_shape}
-                          className="px-8 py-3 w-full rounded-lg bg-[#444141] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-600 hover:to-purple-700 transition-all"
-                        >
-                          Next
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right Section - Current Photo */}
-                  <div className="md:w-1/2 w-full h-[32vh] md:h-[80vh] relative rounded-lg overflow-hidden">
-                    <Image
-                      src={BodyPhoto}
-                      alt="Body Photo"
-                      fill
-                      className="object-contain"
-                    />
-                  </div>
+                {/* Navigation */}
+                <div className="flex justify-between gap-4 mt-6">
+                  <button
+                    onClick={() => setCurrentStep(STEPS.SKIN_FACE_ANALYSIS)}
+                    className="w-1/2 py-3 rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={handleNext}
+                    disabled={!analysisData.body_shape}
+                    className="w-1/2 py-3 rounded-lg bg-[#444141] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#555] transition-all"
+                  >
+                    Next
+                  </button>
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* Hidden File Input */}
+            {/* Hidden file input */}
             <input
               ref={fileInputRef}
               type="file"
@@ -2327,40 +2334,6 @@ export default function Onboarding() {
               onChange={handleFileUpload}
               style={{ display: "none" }}
             />
-
-            {/* Body Instructions Modal */}
-            {showBodyInstructions && (
-              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                <div className="bg-[#444141] rounded-xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
-                  <div className="flex justify-between items-center mb-4">
-                    <h3 className="text-xl font-bold text-white">
-                      ðŸ'• Body Shape Analysis Instructions
-                    </h3>
-                    <button
-                      onClick={() => setShowBodyInstructions(false)}
-                      className="text-white hover:text-gray-300 text-2xl"
-                    >
-                      Ã—
-                    </button>
-                  </div>
-                  <div className="text-white text-sm space-y-3">
-                    <p>Follow these steps for best accuracy:</p>
-                    <ul className="list-disc list-inside space-y-1">
-                      <li>
-                        Wear fitted or light clothing (avoid bulky outfits).
-                      </li>
-                      <li>Stand straight in front of the camera.</li>
-                      <li>Keep the background clear (avoid clutter).</li>
-                      <li>Ensure full body is visible in frame.</li>
-                    </ul>
-                    <p className="mt-4">
-                       <span className="font-semibold">Tip:</span> Stand
-                      about  meters away for better results.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </motion.div>
 
@@ -2417,6 +2390,12 @@ export default function Onboarding() {
 
                     {/* Content Section - Now Below */}
                     <div className="w-full flex flex-col space-y-4">
+                        <button
+                        onClick={() => setShowBodyInstructions(true)}
+                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555555] transition-all"
+                      >
+                      ‹ Instructions
+                      </button>
                       {/* Analysis Status */}
                       <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
                         <h3 className="text-lg font-bold mb-3">
@@ -2454,36 +2433,31 @@ export default function Onboarding() {
                         onClick={() => startAnalysis("body_shape", "camera")}
                         className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
                       >
-                    · Capture from Web Camera
+                     Capture from Web Camera
                       </button>
 
                       <button
                         onClick={() => handleManualInput("body_shape")}
                         className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
                       >
-                        <span className="underline">âœï¸ Manual Selection</span>
+                        <span className="underline">Manual Selection</span>
                       </button>
 
-                      <button
-                        onClick={() => setShowBodyInstructions(true)}
-                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555555] transition-all"
-                      >
-                      ‹ Instructions
-                      </button>
+                    
 
                       <div className="flex justify-center gap-4 mt-8">
                         <button
                           onClick={() =>
                             setCurrentStep(STEPS.SKIN_FACE_ANALYSIS)
                           }
-                          className="px-8 py-3 rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
+                          className="px-8 py-3 w-full rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
                         >
                           Back
                         </button>
                         <button
                           onClick={handleNext}
                           disabled={!analysisData.body_shape}
-                          className="px-8 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-600 hover:to-purple-700 transition-all"
+                          className="px-8 py-3 w-full rounded-lg bg-white/10 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-600 hover:to-purple-700 transition-all"
                         >
                           Next
                         </button>
@@ -2502,6 +2476,39 @@ export default function Onboarding() {
               onChange={handleFileUpload}
               style={{ display: "none" }}
             />
+
+            {/* Body Instructions Modal */}
+            {showBodyInstructions && (
+              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="bg-[#444141] rounded-xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-white">
+                      💪 Body Shape Analysis Instructions
+                    </h3>
+                    <button
+                      onClick={() => setShowBodyInstructions(false)}
+                      className="text-white hover:text-gray-300 text-2xl"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="text-white text-sm space-y-3">
+                    <p>Follow these steps for best accuracy:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>
+                        Wear fitted or light clothing (avoid bulky outfits).
+                      </li>
+                      <li>Stand straight in front of the camera.</li>
+                      <li>Keep the background clear (avoid clutter).</li>
+                      <li>Ensure full body is visible in frame.</li>
+                    </ul>
+                    <p className="mt-4">
+                      ✨ <span className="font-semibold">Tip:</span> Stand about 2-3 meters away for better results.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </motion.div>
       </>
@@ -2536,97 +2543,101 @@ export default function Onboarding() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -20 }}
-          className="min-h-screen hidden md:flex  bg-[#251F1E] items-center justify-center text-white p-4 md:p-8"
+          className="min-h-screen hidden md:flex bg-[#251F1E] items-center justify-center text-white p-4 md:p-8"
         >
-          <div className="mx-auto flex flex-col h-[70vh] items-center w-full">
+          <div className="mx-auto flex flex-col items-center w-full">
             {/* Progress */}
             <div className="w-full mb-6">
               <ProgressBar currentStep={STEPS.PERSONALITY_ANALYSIS} />
             </div>
 
-            {/* Heading */}
-
-            {!hasStarted ? (
-              <div className="w-full  backdrop-blur-lg rounded-xl p-6">
-                <div className="flex flex-col md:flex-row gap-6 items-start">
-                  {/* Left Section (Instructions + CTAs) */}
-                  <div className="md:w-1/2 w-full flex flex-col space-y-4">
-                    {/* Instructions */}
-                    <div className="w-full bg-[#444141] p-6 rounded-3xl text-white">
-                      <h3 className="text-xl font-bold mb-4">Instructions</h3>
-                      <p className="text-sm text-gray-300 mb-3">
-                        Welcome to the Personality Analysis Test! âœ¨
-                      </p>
-                      <p className="text-sm text-gray-300 mb-3">
-                        This test identifies your personality type (MBTI) to
-                        tailor fashion suggestions.
-                      </p>
-                      <ul className="list-disc list-inside text-sm text-gray-300 space-y-1 mb-6">
-                        <li>20 questions in total.</li>
-                        <li>Answer honestly  no right or wrong answers.</li>
-                        <li>Trust your first instinct.</li>
-                        <li>Think about your usual behavior.</li>
-                        <li>Estimated time: 7 minutes.</li>
-                      </ul>
-                      <button
-                        onClick={() => setHasStarted(true)}
-                        className="w-full rounded-full bg-white text-gray-900 font-semibold py-3 hover:bg-gray-100 transition"
-                      >
-                        Start the Test
-                      </button>
-                      <button
-                        onClick={() => setCurrentStep(STEPS.COMPLETE)}
-                        className="mt-4 w-full text-gray-300 underline text-sm"
-                      >
-                        I&apos;ll do it later
-                      </button>
-
-                      {/* <button
-                        onClick={() => setShowPersonalityInstructions(true)}
-                        className="mt-4 w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555555] transition-all"
-                      >
-                        ðŸ"‹ Instructions
-                      </button> */}
-                    </div>
+            <div className="w-full flex flex-col md:flex-row gap-6">
+              {/* LEFT PANEL: IMAGE / CONTENT */}
+              <div className="md:w-[65%] w-full flex items-center justify-center h-[60vh] md:h-[80vh] relative rounded-lg overflow-hidden">
+                {!hasStarted ? (
+                  <Image
+                    src={PersonalityPhoto}
+                    alt="Personality Analysis"
+                    fill
+                    className="object-contain"
+                  />
+                ) : (
+                  <div className="w-full h-full flex items-center justify-center">
+                    <PersonalityAnalysisWidget onComplete={handleNext} />
                   </div>
+                )}
+              </div>
 
-                  {/* Right Section (Photo + Badge + Overlay) */}
-                  <div className="md:w-1/2 w-full relative rounded-lg overflow-hidden">
-                    <div className="relative w-full h-[32vh] md:h-[70vh]">
-                      <Image
-                        src={PersonalityPhoto}
-                        alt="Personality"
-                        fill
-                        className="object-cover"
-                      />
-                    </div>
+              {/* RIGHT PANEL: CONTROLS */}
+              <div className="md:w-[35%] w-full flex flex-col space-y-6">
+                {/* Instructions */}
+                <div className="w-full bg-[#444141] p-5 rounded-3xl text-white">
+                  <h1 className="text-xl font-bold mb-4">
+                    Personality Analysis Instructions
+                  </h1>
+                  <p className="text-sm text-gray-300 mb-3">
+                    Welcome to the Personality Analysis Test! ✨
+                  </p>
+                  <p className="text-sm text-gray-300 mb-3">
+                    This test identifies your personality type (MBTI) to tailor fashion suggestions.
+                  </p>
+                  <ul className="list-disc list-inside text-sm space-y-2 mb-3">
+                    <li>16-20 questions in total.</li>
+                    <li>Answer honestly - no right or wrong answers.</li>
+                    <li>Trust your first instinct.</li>
+                    <li>Think about your usual behavior.</li>
+                    <li>Estimated time: 5-7 minutes.</li>
+                  </ul>
+                  <p className="text-sm">
+                    ✨ <span className="font-semibold">Tip:</span> Take your time and be honest with your answers.
+                  </p>
+                </div>
 
-                    {/* Badge */}
-                    <div className="absolute top-4 left-4 bg-white text-gray-900 text-xs md:text-sm font-semibold rounded-full px-3 py-1 shadow">
-                      PERSONALITY TEST
-                    </div>
+                {/* Action Buttons */}
+                {!hasStarted ? (
+                  <>
+                    <button
+                      onClick={() => setHasStarted(true)}
+                      className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
+                    >
+                      Start the Test
+                    </button>
 
-                    {/* Overlay Info */}
-                    <div className="absolute bottom-6 left-6 bg-black/50 backdrop-blur px-4 py-3 rounded-lg border border-white/10">
-                      <div className="text-sm md:text-base text-gray-200">
-                        <span className="font-semibold">Your Type:</span> ENFP
-                      </div>
-                      <div className="text-xs md:text-sm text-gray-300">
-                        Outgoing Â· Energetic Â· Creative
-                      </div>
-                    </div>
+                    <button
+                      onClick={() => setCurrentStep(STEPS.COMPLETE)}
+                      className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                    >
+                      <span className="underline">I'll do it later</span>
+                    </button>
+                  </>
+                ) : (
+                  <div className="w-full bg-[#444141] p-4 rounded-3xl text-center">
+                    <h3 className="text-lg font-bold mb-2">Test in Progress</h3>
+                    <p className="text-sm text-gray-300">
+                      Complete the personality assessment to continue
+                    </p>
                   </div>
+                )}
+
+                {/* Navigation */}
+                <div className="flex justify-between gap-4 mt-6">
+                  <button
+                    onClick={() => setCurrentStep(STEPS.BODY_ANALYSIS)}
+                    className="w-1/2 py-3 rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
+                  >
+                    Back
+                  </button>
+                  {!hasStarted && (
+                    <button
+                      onClick={() => setCurrentStep(STEPS.COMPLETE)}
+                      className="w-1/2 py-3 rounded-lg bg-[#444141] text-white font-semibold hover:bg-[#555] transition-all"
+                    >
+                      Skip
+                    </button>
+                  )}
                 </div>
               </div>
-            ) : (
-              <>
-                <p className="text-center text-gray-300 mb-8">
-                  Discover your style personality with our 16-question
-                  assessment
-                </p>
-                <PersonalityAnalysisWidget onComplete={handleNext} />
-              </>
-            )}
+            </div>
           </div>
         </motion.div>
 
@@ -2637,89 +2648,128 @@ export default function Onboarding() {
           exit={{ opacity: 0, y: -20 }}
           className="min-h-screen md:hidden bg-[#251F1E] flex items-center justify-center text-white p-4 md:p-8"
         >
-          <div className="max-w-4xl mx-auto flex flex-col items-center w-full">
-            {/* Progress */}
-            <div className="w-full mb-6">
-              <ProgressBar currentStep={STEPS.PERSONALITY_ANALYSIS} />
-            </div>
-
-
-          </div>
-        </motion.div>
-
-        {/* Mobile - Updated Layout to Match Screenshot */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="min-h-screen md:hidden bg-[#251F1E] flex items-center justify-center text-white p-4 md:p-8"
-        >
-          <div className="max-w-4xl mx-auto flex flex-col items-center w-full">
-            {/* Progress */}
-            <div className="w-full mb-6">
+          <div className="max-w-4xl mx-auto flex flex-col items-center">
+            <div className="w-full">
               <ProgressBar currentStep={STEPS.PERSONALITY_ANALYSIS} />
             </div>
 
             {!hasStarted ? (
-              <div className="w-full flex flex-col items-center">
-                {/* Central Image Section - White Circle with Illustration */}
-                <div className="w-full flex items-center justify-center mb-8">
-                  <div className="relative w-80 h-80 bg-white rounded-full flex items-center justify-center shadow-2xl">
-                    <div className="relative w-72 h-72 flex items-center justify-center">
+              <div className="w-full md:w-[100vw] md:h-[80vh] gap-8">
+                {/* Personality Analysis */}
+                <div className="backdrop-blur-lg rounded-xl p-6 mt-20">
+                  <div className="flex flex-col gap-6 items-start">
+                    {/* Image Section - Now on Top */}
+                    <div className="w-full flex items-center justify-center relative overflow-hidden">
                       <Image
                         src={MobilePersonalityPhoto}
                         alt="Personality Analysis"
-                        height={280}
-                        width={280}
-                        className="object-cover rounded-full"
+                        height={200}
+                        width={200}
+                        className="object-cover w-[300px] h-[300px] rounded-full"
                       />
-                      
-                      {/* Purple bracket-like icons in corners */}
-                      <div className="absolute top-2 left-2 w-6 h-6 border-2 border-purple-500 rounded-sm"></div>
-                      <div className="absolute top-2 right-2 w-6 h-6 border-2 border-purple-500 rounded-sm"></div>
-                      
-                      {/* Purple button area at bottom */}
-                      <div className="absolute bottom-2 left-1/2 transform -translate-x-1/2 w-16 h-2 bg-purple-500 rounded-full"></div>
+                    </div>
+
+                    {/* Content Section - Now Below */}
+                    <div className="w-full flex flex-col space-y-4">
+                      {/* Instructions */}
+                      <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
+                        <h3 className="text-lg font-bold mb-3">
+                          Personality Analysis Instructions
+                        </h3>
+                        <p className="text-sm text-gray-300 mb-3">
+                          Welcome to the Personality Analysis Test! ✨
+                        </p>
+                        <p className="text-sm text-gray-300 mb-3">
+                          This test identifies your personality type (MBTI) to tailor fashion suggestions.
+                        </p>
+                        <ul className="list-disc list-inside text-sm space-y-1 mb-3">
+                          <li>16-20 questions in total.</li>
+                          <li>Answer honestly - no right or wrong answers.</li>
+                          <li>Trust your first instinct.</li>
+                          <li>Think about your usual behavior.</li>
+                          <li>Estimated time: 5-7 minutes.</li>
+                        </ul>
+                        <p className="text-sm">
+                          ✨ <span className="font-semibold">Tip:</span> Take your time and be honest with your answers.
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => setHasStarted(true)}
+                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
+                      >
+                        Start the Test
+                      </button>
+
+                      <button
+                        onClick={() => setShowPersonalityInstructions(true)}
+                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555555] transition-all"
+                      >
+                        Instructions
+                      </button>
+
+                      <button
+                        onClick={() => setCurrentStep(STEPS.COMPLETE)}
+                        className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                      >
+                        <span className="underline">I'll do it later</span>
+                      </button>
+
+                      <div className="flex justify-center gap-4 mt-8">
+                        <button
+                          onClick={() => setCurrentStep(STEPS.BODY_ANALYSIS)}
+                          className="px-8 py-3 rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
+                        >
+                          Back
+                        </button>
+                        <button
+                          onClick={() => setCurrentStep(STEPS.COMPLETE)}
+                          className="px-8 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-purple-600 text-white font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
+                        >
+                          Skip
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-
-                {/* Action Buttons Section */}
-                <div className="w-full flex flex-col space-y-4 max-w-sm">
-                  {/* Instructions Button */}
-                  <button
-                    onClick={() => setShowPersonalityInstructions(true)}
-                    className="w-full bg-gray-700 text-white py-3 px-6 rounded-lg font-semibold hover:bg-gray-600 transition-all flex items-center justify-center gap-3"
-                  >
-                    <span className="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">i</span>
-                    Instructions
-                  </button>
-
-                  {/* Take Test Button */}
-                  <button
-                    onClick={() => setHasStarted(true)}
-                    className="w-full bg-gray-700 text-white py-4 px-6 rounded-lg font-semibold hover:bg-gray-600 transition-all"
-                  >
-                    take a test
-                  </button>
-
-                  {/* Skip Link */}
-                  <button
-                    onClick={() => setCurrentStep(STEPS.COMPLETE)}
-                    className="w-full text-white underline text-sm py-2 hover:text-gray-300 transition-colors"
-                  >
-                    i'll do it later
-                  </button>
-                </div>
               </div>
             ) : (
-              <>
-                <p className="text-center text-gray-300 mb-8">
-                  Discover your style personality with our 16-question
-                  assessment
-                </p>
+              <div className="w-full mt-20">
                 <PersonalityAnalysisWidget onComplete={handleNext} />
-              </>
+              </div>
+            )}
+
+            {/* Personality Instructions Modal */}
+            {showPersonalityInstructions && (
+              <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="bg-[#444141] rounded-xl p-6 max-w-md w-full max-h-[80vh] overflow-y-auto">
+                  <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-xl font-bold text-white">
+                      🧠 Personality Analysis Instructions
+                    </h3>
+                    <button
+                      onClick={() => setShowPersonalityInstructions(false)}
+                      className="text-white hover:text-gray-300 text-2xl"
+                    >
+                      ×
+                    </button>
+                  </div>
+                  <div className="text-white text-sm space-y-3">
+                    <p>Welcome to the Personality Analysis Test! ✨</p>
+                    <p>
+                      This test identifies your personality type (MBTI) to tailor
+                      fashion suggestions.
+                    </p>
+                    <ul className="list-disc list-inside space-y-1">
+                      <li>16-20 questions in total.</li>
+                      <li>Answer honestly - no right or wrong answers.</li>
+                      <li>Trust your first instinct.</li>
+                      <li>Think about your usual behavior.</li>
+                      <li>Estimated time: 5-7 minutes.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
             )}
           </div>
         </motion.div>
@@ -2795,11 +2845,7 @@ export default function Onboarding() {
             console.log('Onboarding completed successfully:', response.data);
             
             // Store user data in localStorage for other pages to access
-            const userDataForStorage = {
-              ...userData,
-              onboarding_completed: true
-            };
-            localStorage.setItem('aurasync_user_data', JSON.stringify(userDataForStorage));
+            localStorage.setItem('aurasync_user_data', JSON.stringify(userData));
           } else {
             console.error('Failed to complete onboarding');
           }
@@ -2823,32 +2869,10 @@ export default function Onboarding() {
           className="min-h-screen hidden md:flex items-center justify-center bg-[#251F1E]"
         >
           <div className="text-center text-white p-8">
-            <ProgressBar currentStep={STEPS.COMPLETE} />
+           
             <div className="text-6xl text-center flex gap-6 mb-6">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                width="44"
-                height="44"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                className="lucide lucide-party-popper h-8 w-8 text-amber-300"
-                aria-hidden="true"
-              >
-                <path d="M5.8 11.3 2 22l10.7-3.79"></path>
-                <path d="M4 3h.01"></path>
-                <path d="M22 8h.01"></path>
-                <path d="M15 2h.01"></path>
-                <path d="M22 20h.01"></path>
-                <path d="m22 2-2.24.75a2.9 2.9 0 0 0-1.96 3.12v0c.1.86-.57 1.63-1.45 1.63h-.38c-.86 0-1.6.6-1.76 1.44L14 10"></path>
-                <path d="m22 13-.82-.33c-.86-.34-1.82.2-1.98 1.11v0c-.11.7-.72 1.22-1.43 1.22H17"></path>
-                <path d="m11 2 .33.82c.34.86-.2 1.82-1.11 1.98v0C9.52 4.9 9 5.52 9 6.23V7"></path>
-                <path d="M11 13c1.93 1.93 2.83 4.17 2 5-.83.83-3.07-.07-5-2-1.93-1.93-2.83-4.17-2-5 .83-.83 3.07.07 5 2Z"></path>
-              </svg>
-              <span className="text-2xl">All Set to GO..!!</span>
+             
+              
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               Welcome to Auraasync!

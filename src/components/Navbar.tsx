@@ -2,11 +2,13 @@ import { useState, useEffect, Children, cloneElement } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { FiHome, FiAlertCircle, FiPhoneCall, FiBookOpen } from "react-icons/fi";
 import { useMediaQuery } from "react-responsive";
+import { useRouter } from "next/navigation";
 
 const NavItem = ({ children, className = "", onClick, isMobile }) => {
   const [isHovered, setIsHovered] = useState(false);
-
+const router=useRouter();
   return (
+    
     <div
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
@@ -26,12 +28,14 @@ const NavItem = ({ children, className = "", onClick, isMobile }) => {
 };
 
 const NavIcon = ({ children, className = "", isHovered }) => {
+  const router=useRouter();
   return (
     <div
       className={`flex items-center justify-center transition-all duration-200 ${className}`}
     >
       <div
-        className={`text-white transition-all duration-200 ${
+      onClick={()=>router.push('/onboarding')}
+        className={`text-white transition-all duration-200  ${
           isHovered ? "scale-110 text-gray-300" : "text-white"
         }`}
       >
@@ -156,7 +160,9 @@ const Navbar = ({
                       : ""
                   }`}
                 >
-                  <NavItem onClick={item.onClick} isMobile={isMobile}>
+                  <NavItem 
+                  
+                  onClick={item.onClick} isMobile={isMobile}>
                     <NavIcon>{item.icon}</NavIcon>
                   </NavItem>
                 </div>

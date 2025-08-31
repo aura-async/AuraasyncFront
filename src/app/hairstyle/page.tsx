@@ -51,16 +51,9 @@ export default function HairstylePage() {
   // }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-blue-900 to-indigo-900 pb-20">
+    <div className="min-h-screen bg-[#251F1E] pb-20">
       {/* Navbar for mobile */}
-      <Navbar 
-        items={[
-          { icon: <span>🏠</span>, label: "Home", onClick: () => router.push(`/${userData?.gender || 'male'}`) },
-          { icon: <span>🔍</span>, label: "Search", onClick: () => router.push('/search') },
-          { icon: <span>💇</span>, label: "Hairstyle", onClick: () => router.push('/hairstyle') },
-          { icon: <span>⚙️</span>, label: "Dashboard", onClick: () => router.push('/dashboard') },
-        ]}
-      />
+      
       <HairstyleRecommender />
       <BottomNavigation />
     </div>

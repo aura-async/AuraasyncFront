@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 const StickyHeader = () => {
+  const router=useRouter();
   const [isVisible, setIsVisible] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
 
@@ -56,7 +58,9 @@ const StickyHeader = () => {
             </div>
 
             {/* Auth Links */}
-            <div className="flex items-center space-x-0.05 text-white font-medium text-lg">
+            <div
+            onClick={()=>router.push('/onboarding')}
+             className="flex items-center space-x-0.05 text-white font-medium text-lg">
               <button className="w-[104px] h-[38px] flex items-center justify-center hover:text-gray-300 transition-colors duration-200">Login</button>
               <button className="w-[104px] h-[38px] flex items-center justify-center hover:text-gray-300 transition-colors duration-200">Sign-up</button>
             </div>
