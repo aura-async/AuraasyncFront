@@ -1,31 +1,143 @@
 'use client';
 
 import React from 'react';
-import { getUserData, clearUserData } from '../../lib/userState';
 import { useRouter } from 'next/navigation';
 import BottomNavigation from '@/components/male/BottomNavigation';
 import Navbar from '@/components/Navbar';
+import { auth } from '../../lib/firebase';
+import { signOut } from 'firebase/auth';
+import axios from 'axios';
+
+interface UserData {
+  id: number;
+  email: string;
+  name: string;
+  gender: 'male' | 'female' | '';
+  location: string;
+  skin_tone?: string;
+  face_shape?: string | null;
+  body_shape?: string | null;
+  personality?: string | null;
+  onboarding_completed: boolean;
+  is_new_user: boolean;
+  profile_picture?: string;
+}
 
 export default function Dashboard() {
-  const userData = getUserData();
+  const [userData, setUserData] = React.useState<UserData | null>(null);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [error, setError] = React.useState<string | null>(null);
   const router = useRouter();
 
-  // Redirect if no user data
+  // Fetch user data from backend
+  const fetchUserData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        setError('No authenticated user found');
+        setIsLoading(false);
+        return;
+      }
+
+      const idToken = await currentUser.getIdToken();
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      
+      const response = await axios.get(`${API_URL}/auth/me`, {
+        headers: {
+          'Authorization': `Bearer ${idToken}`,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.status === 200) {
+        setUserData(response.data);
+      } else {
+        setError('Failed to fetch user data');
+      }
+    } catch (error: any) {
+      console.error('Error fetching user data:', error);
+      if (error.response?.status === 401) {
+        setError('Authentication failed. Please login again.');
+      } else if (error.response?.status === 404) {
+        setError('User not found in database');
+      } else {
+        setError('Failed to fetch user data. Please try again.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Fetch user data on component mount
   React.useEffect(() => {
-    if (!userData) {
+    fetchUserData();
+  }, []);
+
+  // Redirect if no user data and not loading
+  React.useEffect(() => {
+    if (!isLoading && !userData && !error) {
       router.push('/');
     }
-  }, [userData, router]);
+  }, [userData, isLoading, error, router]);
 
-  const handleLogout = () => {
-    clearUserData();
-    router.push('/');
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      router.push('/');
+    } catch (error) {
+      console.error('Error signing out:', error);
+      router.push('/');
+    }
   };
+
+  const handleRefresh = () => {
+    fetchUserData();
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-white text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-white mx-auto mb-4"></div>
+          <p>Loading your dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-black">
+        <div className="text-white text-center max-w-md mx-auto p-6">
+          <div className="text-red-400 text-6xl mb-4">⚠️</div>
+          <h2 className="text-2xl font-bold mb-4">Error Loading Dashboard</h2>
+          <p className="text-gray-300 mb-6">{error}</p>
+          <div className="space-y-3">
+            <button
+              onClick={handleRefresh}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition-all"
+            >
+              🔄 Try Again
+            </button>
+            <button
+              onClick={handleLogout}
+              className="w-full bg-red-600 text-white py-3 rounded-lg font-semibold hover:bg-red-700 transition-all"
+            >
+              🚪 Go to Login
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   if (!userData) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-black">
-        <div className="text-white">Loading...</div>
+        <div className="text-white">No user data available</div>
       </div>
     );
   }
