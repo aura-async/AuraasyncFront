@@ -151,11 +151,11 @@ export default function Onboarding() {
             setUserDataState(userData);
             
             // If user is new, proceed to onboarding
-            if (backendUserData.is_new_user) {
+            if (!backendUserData.onboarding_completed) {
               setCurrentStep(STEPS.BASIC_INFO);
             } else {
               // If user exists but onboarding is not completed
-              setCurrentStep(STEPS.BASIC_INFO);
+              router.push(backendUserData.gender == "male"? "/male":"/female");
             }
             
             console.log("User authenticated and verified:", backendUserData);
