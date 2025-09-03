@@ -349,7 +349,7 @@ export default function Dashboard() {
         </div>
 
         {/* Debug Information */}
-        <div className="mt-8 bg-yellow-500/10 backdrop-blur-lg rounded-xl p-6 border border-yellow-500/30">
+        {/* <div className="mt-8 bg-yellow-500/10 backdrop-blur-lg rounded-xl p-6 border border-yellow-500/30">
           <h2 className="text-2xl font-semibold mb-4 flex items-center text-yellow-400">
             <span className="mr-2">🐛</span>
             Debug Information
@@ -385,7 +385,7 @@ export default function Dashboard() {
               </p>
             </div>
           </div>
-        </div>
+        </div> */}
       </div>
       <BottomNavigation />
     </div>

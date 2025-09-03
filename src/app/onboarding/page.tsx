@@ -3276,7 +3276,7 @@ export default function Onboarding() {
       }
       
       // Redirect to dashboard after completing onboarding
-      router.push("/dashboard");
+      router.push(completedUserData.gender == "male" ? "/male": "/female");
     };
 
     return (
