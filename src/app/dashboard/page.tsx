@@ -3,9 +3,8 @@
 import React from 'react';
 import { useRouter } from 'next/navigation';
 import BottomNavigation from '@/components/male/BottomNavigation';
-import Navbar from '@/components/Navbar';
 import { auth } from '../../lib/firebase';
-import { signOut } from 'firebase/auth';
+import { signOut, onAuthStateChanged } from 'firebase/auth';
 import axios from 'axios';
 import { getUserData, clearUserData } from '@/lib/userState';
 
@@ -47,12 +46,16 @@ export default function Dashboard() {
       const idToken = await currentUser.getIdToken();
       const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
       
+      console.log('Attempting to fetch user data from:', `${API_URL}/auth/me`);
+      
       const response = await axios.get(`${API_URL}/auth/me`, {
         headers: {
           'Authorization': `Bearer ${idToken}`,
           'Content-Type': 'application/json'
         }
-      });
+              });
+
+      console.log('API Response:', response.data);
 
       if (response.status === 200) {
         setUserData(response.data);
@@ -61,21 +64,50 @@ export default function Dashboard() {
       }
     } catch (error: any) {
       console.error('Error fetching user data:', error);
+      
+      // Try to get data from localStorage as fallback
+      const localUserData = getUserData();
+      if (localUserData && localUserData.onboarding_completed) {
+        console.log('Using localStorage data as fallback:', localUserData);
+        setUserData({
+          id: 1,
+          email: localUserData.email || '',
+          name: localUserData.name || '',
+          gender: localUserData.gender || '',
+          location: localUserData.location || '',
+          skin_tone: localUserData.skin_tone || '',
+          face_shape: localUserData.face_shape || null,
+          body_shape: localUserData.body_shape || null,
+          personality: localUserData.personality || null,
+          onboarding_completed: localUserData.onboarding_completed || false,
+          is_new_user: false
+        });
+        return;
+      }
+      
       if (error.response?.status === 401) {
         setError('Authentication failed. Please login again.');
       } else if (error.response?.status === 404) {
         setError('User not found in database');
       } else {
-        setError('Failed to fetch user data. Please try again.');
+        setError(`Failed to fetch user data: ${error.message || 'Unknown error'}`);
       }
     } finally {
       setIsLoading(false);
     }
   };
 
-  // Fetch user data on component mount
+  // Wait for Firebase auth state, then fetch
   React.useEffect(() => {
-    fetchUserData();
+    const unsubscribe = onAuthStateChanged(auth, (fbUser) => {
+      if (!fbUser) {
+        setError('No authenticated user found');
+        setIsLoading(false);
+        return;
+      }
+      fetchUserData();
+    });
+    return () => unsubscribe();
   }, []);
 
   // Redirect if no user data and not loading
@@ -143,15 +175,7 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-[#251F1E] text-white p-8 pb-20">
-      {/* Navbar for mobile */}
-      <Navbar 
-        items={[
-          { icon: <span>🏠</span>, label: "Home", onClick: () => router.push(`/${userData.gender}`) },
-          { icon: <span>🔍</span>, label: "Search", onClick: () => router.push('/search') },
-          { icon: <span>💇</span>, label: "Hairstyle", onClick: () => userData.face_shape ? router.push('/hairstyle') : null },
-          { icon: <span>⚙️</span>, label: "Settings", onClick: () => router.push('/dashboard') },
-        ]}
-      />
+      
       <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <h1 className="text-4xl font-bold mb-2">User Dashboard</h1>
@@ -194,27 +218,39 @@ export default function Dashboard() {
             <div className="space-y-3">
               <div className="flex justify-between">
                 <span className="text-gray-300">Skin Tone:</span>
-                <span className={`font-medium ${userData.skin_tone ? 'text-green-400' : 'text-red-400'}`}>
-                  {userData.skin_tone || 'Not completed'}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className={`font-medium ${userData.skin_tone ? 'text-green-400' : 'text-red-400'}`}>
+                    {userData.skin_tone || 'Not completed'}
+                  </span>
+                  <button onClick={() => router.push('/onboarding?mode=single&target=skin')} className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-700">Redo</button>
+                </div>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-300">Face Shape:</span>
-                <span className={`font-medium ${userData.face_shape ? 'text-green-400' : 'text-red-400'}`}>
-                  {userData.face_shape || 'Not completed'}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className={`font-medium ${userData.face_shape ? 'text-green-400' : 'text-red-400'}`}>
+                    {userData.face_shape || 'Not completed'}
+                  </span>
+                  <button onClick={() => router.push('/onboarding?mode=single&target=face')} className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-700">Redo</button>
+                </div>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-300">Body Shape:</span>
-                <span className={`font-medium ${userData.body_shape ? 'text-green-400' : 'text-red-400'}`}>
-                  {userData.body_shape || 'Not completed'}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className={`font-medium ${userData.body_shape ? 'text-green-400' : 'text-red-400'}`}>
+                    {userData.body_shape || 'Not completed'}
+                  </span>
+                  <button onClick={() => router.push('/onboarding?mode=single&target=body')} className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-700">Redo</button>
+                </div>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-300">Personality:</span>
-                <span className={`font-medium ${userData.personality ? 'text-green-400' : 'text-red-400'}`}>
-                  {userData.personality || 'Not completed'}
-                </span>
+                <div className="flex items-center gap-3">
+                  <span className={`font-medium ${userData.personality ? 'text-green-400' : 'text-red-400'}`}>
+                    {userData.personality || 'Not completed'}
+                  </span>
+                  <button onClick={() => router.push('/onboarding?mode=single&target=personality')} className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-700">Redo</button>
+                </div>
               </div>
             </div>
           </div>
@@ -308,6 +344,45 @@ export default function Dashboard() {
               <div className={`text-center p-3 rounded-lg ${userData.personality ? 'bg-green-500/20 text-green-400' : 'bg-red-500/20 text-red-400'}`}>
                 Personality
               </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Debug Information */}
+        <div className="mt-8 bg-yellow-500/10 backdrop-blur-lg rounded-xl p-6 border border-yellow-500/30">
+          <h2 className="text-2xl font-semibold mb-4 flex items-center text-yellow-400">
+            <span className="mr-2">🐛</span>
+            Debug Information
+          </h2>
+          <div className="space-y-3 text-sm">
+            <div className="flex justify-between">
+              <span className="text-gray-300">API Status:</span>
+              <span className="font-medium text-blue-400">Check Console for Details</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-300">LocalStorage Data:</span>
+              <button 
+                onClick={() => {
+                  const localData = getUserData();
+                  console.log('LocalStorage User Data:', localData);
+                  alert(`LocalStorage Data: ${JSON.stringify(localData, null, 2)}`);
+                }}
+                className="text-xs px-2 py-1 rounded bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                View Data
+              </button>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-gray-300">Backend URL:</span>
+              <span className="font-medium text-green-400">
+                {process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000"}
+              </span>
+            </div>
+            <div className="mt-4 p-3 bg-black/20 rounded-lg">
+              <p className="text-xs text-gray-400">
+                💡 <strong>Tip:</strong> If the dashboard shows no data, check the browser console for API errors. 
+                The system will automatically use localStorage data as a fallback if the API fails.
+              </p>
             </div>
           </div>
         </div>

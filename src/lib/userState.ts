@@ -85,7 +85,8 @@ export const isOnboardingCompleted = (): boolean => {
 export const markOnboardingCompleted = (): void => {
   const currentUser = getUserData();
   if (currentUser) {
-    updateUserData({ onboarding_completed: true });
+    const updatedUser = { ...currentUser, onboarding_completed: true };
+    setUserData(updatedUser);
   }
 };
 
