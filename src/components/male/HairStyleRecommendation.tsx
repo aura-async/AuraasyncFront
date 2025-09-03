@@ -794,25 +794,27 @@ export default function HairstyleRecommender() {
         <div className="text-sm opacity-70 text-white">Personalized for your face shape</div>
       </div>
 
-      {/* Stepper */}
-      <ol className="mb-8 flex items-center gap-3 text-sm text-white">
-        {[1, 2, 3].map((i) => (
-          <li key={i} className="flex items-center gap-2">
-            <span
-              className={classNames(
-                "flex h-7 w-7 items-center justify-center rounded-full border",
-                step >= (i as 1 | 2 | 3) ? "bg-blue-600 text-white border-blue-600" : "bg-transparent border-white/30 text-white"
-              )}
-            >
-              {i}
-            </span>
-            <span className="hidden sm:inline">
-              {i === 1 ? "Select Gender" : i === 2 ? "Select Face Shape" : "Recommendations"}
-            </span>
-            {i !== 3 && <span className="mx-2 text-white/40">—</span>}
-          </li>
-        ))}
-      </ol>
+      {/* Stepper (hidden when auto-detected) */}
+      {!(gender && faceShape && step === 3) && (
+        <ol className="mb-8 flex items-center gap-3 text-sm text-white">
+          {[1, 2, 3].map((i) => (
+            <li key={i} className="flex items-center gap-2">
+              <span
+                className={classNames(
+                  "flex h-7 w-7 items-center justify-center rounded-full border",
+                  step >= (i as 1 | 2 | 3) ? "bg-blue-600 text-white border-blue-600" : "bg-transparent border-white/30 text-white"
+                )}
+              >
+                {i}
+              </span>
+              <span className="hidden sm:inline">
+                {i === 1 ? "Select Gender" : i === 2 ? "Select Face Shape" : "Recommendations"}
+              </span>
+              {i !== 3 && <span className="mx-2 text-white/40">—</span>}
+            </li>
+          ))}
+        </ol>
+      )}
 
       {/* Step 1: Gender */}
       {step === 1 && (
@@ -838,7 +840,7 @@ export default function HairstyleRecommender() {
         <div>
           <div className="mb-4 flex items-center justify-between">
             <div className="text-sm opacity-75 text-white">Gender: <b>{gender}</b></div>
-            <button onClick={() => setStep(1)} className="text-sm underline opacity-75 text-white hover:text-blue-300">Change</button>
+            {/* Change button removed as per requirement */}
           </div>
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
             {faceShapes.map((shape) => (
@@ -872,7 +874,7 @@ export default function HairstyleRecommender() {
                 placeholder="Search within styles (e.g., bangs, waves, layers)"
                 className="w-full rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500 text-white placeholder-white/50 sm:w-80"
               />
-              <button onClick={() => setStep(2)} className="rounded-xl border border-white/20 bg-white/10 backdrop-blur-sm px-3 py-2 text-sm text-white hover:bg-white/20">Change face shape</button>
+              {/* Remove change face shape button */}
             </div>
           </div>
 

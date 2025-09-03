@@ -102,6 +102,15 @@ const Footer = () => {
                     auraasync@gmail.com
                   </span>
                 </div>
+                {/* Feedback button → navigates to on-site feedback form */}
+                <div>
+                  <Link
+                    href="/feedback"
+                    className="inline-block px-5 py-2 rounded-lg bg-blue-600 text-white text-sm hover:bg-blue-700 transition-colors"
+                  >
+                    Send Feedback
+                  </Link>
+                </div>
               </div>
             </div>
 

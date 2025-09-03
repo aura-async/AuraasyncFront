@@ -18,6 +18,8 @@ export default function FlowController({ children }: FlowControllerProps) {
     const checkUserFlow = () => {
       const userData = getUserData();
       const currentPath = window.location.pathname;
+      const searchParams = new URLSearchParams(window.location.search);
+      const isSingleAnalysis = currentPath === '/onboarding' && searchParams.get('mode') === 'single';
 
       // Landing page (guest UI): if authenticated and done, skip to gender homepage
       if (currentPath === '/') {
@@ -37,7 +39,7 @@ export default function FlowController({ children }: FlowControllerProps) {
       // Onboarding: allow guests and incomplete users; skip if already completed
       if (currentPath === '/onboarding') {
         // Allow onboarding even with no user data. Only redirect if it's already completed.
-        if (userData && userData.onboarding_completed) {
+        if (!isSingleAnalysis && userData && userData.onboarding_completed) {
           const redirectPath = userData.gender === 'male' ? '/male' : '/female';
           setIsLoading(false);
           router.replace(redirectPath);

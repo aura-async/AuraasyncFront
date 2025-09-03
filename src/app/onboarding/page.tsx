@@ -16,6 +16,7 @@ import FaceAnalysisWidget from "../../components/FaceAnalysisWidget";
 import SkinToneAnalysisWidget from "../../components/SkinToneAnalysisWidget";
 import BodyAnalysisWidget from "../../components/BodyAnalysisWidget";
 import PersonalityAnalysisWidget from "../../components/PersonalityAnalysisWidget";
+import { guessFemaleType, guessMaleType, inchesToCm, cmToInches } from "../../lib/bodyTypes";
 import Image from "next/image";
 import FacePhoto from "@/app/assets/onboarding/face.png";
 import MobileFacePhoto from "@/app/assets/onboarding/faceMobile.png";
@@ -85,6 +86,9 @@ const STEP_LABELS: Record<StepType, string> = {
 
 export default function Onboarding() {
   const router = useRouter();
+  const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
+  const singleMode = searchParams?.get('mode') === 'single';
+  const singleTarget = (searchParams?.get('target') as 'skin' | 'face' | 'body' | 'personality' | null) || null;
   const [currentStep, setCurrentStep] = useState<StepType>(STEPS.LOGIN);
   const [userData, setUserDataState] = useState<UserData>({
     email: "",
@@ -97,6 +101,54 @@ export default function Onboarding() {
     personality: null,
     onboarding_completed: false,
   });
+
+  // When in single mode, set initial step based on target (skip login/basic)
+  React.useEffect(() => {
+    if (!singleMode) return;
+    if (singleTarget === 'skin' || singleTarget === 'face') {
+      setCurrentStep(STEPS.SKIN_FACE_ANALYSIS);
+    } else if (singleTarget === 'body') {
+      setCurrentStep(STEPS.BODY_ANALYSIS);
+    } else if (singleTarget === 'personality') {
+      setCurrentStep(STEPS.PERSONALITY_ANALYSIS);
+    }
+  }, [singleMode, singleTarget]);
+
+  // Helpers for single-mode save from within step UIs
+  const saveSingleModeAndReturn = async (updates: Partial<UserData>) => {
+    if (!singleMode || !singleTarget) return false;
+    try {
+      const currentUser = auth.currentUser;
+      if (!currentUser) {
+        router.replace('/login');
+        return true;
+      }
+      const idToken = await currentUser.getIdToken();
+      const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+      const existing = userData;
+      const body = {
+        name: existing.name,
+        gender: existing.gender,
+        location: existing.location || 'Mumbai',
+        skin_tone: updates.skin_tone ?? existing.skin_tone ?? null,
+        face_shape: updates.face_shape ?? existing.face_shape ?? null,
+        body_shape: updates.body_shape ?? existing.body_shape ?? null,
+        personality: updates.personality ?? existing.personality ?? null,
+      };
+      await axios.put(`${API_URL}/auth/update-onboarding`, body, {
+        headers: {
+          Authorization: `Bearer ${idToken}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      setUserData({ ...existing, ...updates });
+    } catch (err) {
+      console.error('Single-mode save failed', err);
+    } finally {
+      router.replace('/dashboard');
+    }
+    return true;
+  };
 
   // Step 1: Login Component
   const LoginStep = () => {
@@ -151,11 +203,11 @@ export default function Onboarding() {
             setUserDataState(userData);
             
             // If user is new, proceed to onboarding
-            if (backendUserData.is_new_user) {
+            if (!backendUserData.onboarding_completed) {
               setCurrentStep(STEPS.BASIC_INFO);
             } else {
               // If user exists but onboarding is not completed
-              setCurrentStep(STEPS.BASIC_INFO);
+              router.push(backendUserData.gender == "male"? "/male":"/female");
             }
             
             console.log("User authenticated and verified:", backendUserData);
@@ -1380,54 +1432,106 @@ export default function Onboarding() {
               </p>
             </div>
 
-            {/* Upload Section */}
-            <div className="flex flex-col items-center bg-[#444141] p-4 rounded-3xl text-center">
-              <h1 className="text-lg font-bold mb-3">
-                Upload picture from your device
-              </h1>
-              <button
-                onClick={() => startAnalysis("face_shape", "upload")}
-                className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
-              >
-                Upload +
-              </button>
-            </div>
-
-            {/* Camera Button */}
-            <button
-              onClick={() => startAnalysis("face_shape", "camera")}
-              className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
-            >
-              Capture from Web Camera
-            </button>
+            {/* Upload/Capture Section - switches to Skin when target=skin */}
+            {singleMode ? (
+              singleTarget === 'skin' ? (
+                <>
+                  <div className="flex flex-col items-center bg-[#444141] p-4 rounded-3xl text-center">
+                    <h1 className="text-lg font-bold mb-3">Upload picture from your device</h1>
+                    <button
+                      onClick={() => startAnalysis("skin_tone", "upload")}
+                      className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
+                    >
+                      Upload +
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => startAnalysis("skin_tone", "camera")}
+                    className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
+                  >
+                    Capture from Web Camera
+                  </button>
+                </>
+              ) : (
+                <>
+                  <div className="flex flex-col items-center bg-[#444141] p-4 rounded-3xl text-center">
+                    <h1 className="text-lg font-bold mb-3">Upload picture from your device</h1>
+                    <button
+                      onClick={() => startAnalysis("face_shape", "upload")}
+                      className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
+                    >
+                      Upload +
+                    </button>
+                  </div>
+                  <button
+                    onClick={() => startAnalysis("face_shape", "camera")}
+                    className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
+                  >
+                    Capture from Web Camera
+                  </button>
+                </>
+              )
+            ) : (
+              <>
+                <div className="flex flex-col items-center bg-[#444141] p-4 rounded-3xl text-center">
+                  <h1 className="text-lg font-bold mb-3">Upload picture from your device</h1>
+                  <button
+                    onClick={() => startAnalysis("face_shape", "upload")}
+                    className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
+                  >
+                    Upload +
+                  </button>
+                </div>
+                <button
+                  onClick={() => startAnalysis("face_shape", "camera")}
+                  className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
+                >
+                  Capture from Web Camera
+                </button>
+              </>
+            )}
 
             {/* Manual Input */}
-                    <div className="flex  items-center gap-8 justify-between">
-                       <button
-                        onClick={() => handleManualInput("skin_tone")}
-                        className=" text-white w-full py-3 rounded hover:bg-gray-700 transition-colors"
-                      >
-                        <span className="underline"> Insert Skin Tone Manually</span>
-                      </button>
-                      <button
-                        onClick={() => handleManualInput("face_shape")}
-                        className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
-                      >
-                        <span className="underline"> Insert Face Shape Manually</span>
-                      </button>
-               </div>
+            <div className="flex  items-center gap-8 justify-between">
+              {!(singleMode && singleTarget === 'face') && (
+                <button
+                  onClick={() => handleManualInput("skin_tone")}
+                  className=" text-white w-full py-3 rounded hover:bg-gray-700 transition-colors"
+                >
+                  <span className="underline"> Insert Skin Tone Manually</span>
+                </button>
+              )}
+              {!(singleMode && singleTarget === 'skin') && (
+                <button
+                  onClick={() => handleManualInput("face_shape")}
+                  className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                >
+                  <span className="underline"> Insert Face Shape Manually</span>
+                </button>
+              )}
+            </div>
 
             {/* Navigation */}
             <div className="flex justify-between gap-4 mt-6">
+              {!singleMode && (
+                <button
+                  onClick={() => setCurrentStep(STEPS.BASIC_INFO)}
+                  className="w-1/2 py-3 rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
+                >
+                  Back
+                </button>
+              )}
               <button
-                onClick={() => setCurrentStep(STEPS.BASIC_INFO)}
-                className="w-1/2 py-3 rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
-              >
-                Back
-              </button>
-              <button
-                onClick={handleNext}
-                disabled={!analysisData.skin_tone}
+                onClick={() => {
+                  if (singleMode && singleTarget === 'skin') {
+                    saveSingleModeAndReturn({ skin_tone: analysisData.skin_tone });
+                  } else if (singleMode && singleTarget === 'face') {
+                    saveSingleModeAndReturn({ face_shape: analysisData.face_shape || null });
+                  } else {
+                    handleNext();
+                  }
+                }}
+                disabled={singleMode ? (singleTarget === 'skin' ? !analysisData.skin_tone : !analysisData.face_shape) : !analysisData.skin_tone}
                 className="w-1/2 py-3 rounded-lg bg-[#444141] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#555] transition-all"
               >
                 Next
@@ -1460,14 +1564,14 @@ export default function Onboarding() {
             </div>
 
             {/* Show upload analysis if active */}
-            {showUpload && currentAnalysis === "face_shape" && (
+            {showUpload && currentAnalysis && (
               <div className="mb-8">
                 <UploadAnalysis />
               </div>
             )}
 
             {/* Show camera analysis if active */}
-            {currentAnalysis === "face_shape" &&
+            {currentAnalysis &&
               !showManualInput &&
               !showUpload && (
                 <div className="mb-8">
@@ -1546,31 +1650,35 @@ export default function Onboarding() {
                           Upload picture from your device{" "}
                         </h1>
                         <button
-                          onClick={() => startAnalysis("face_shape", "upload")}
+                          onClick={() => startAnalysis(singleMode && singleTarget === 'skin' ? "skin_tone" : "face_shape", "upload")}
                           className="border-2 border-white px-16 text-white py-3 rounded-full font-semibold hover:border-white hover:from-green-600 hover:to-emerald-700 transition-all"
                         >
                           Upload +
                         </button>
                       </div>
                       <button
-                        onClick={() => startAnalysis("face_shape", "camera")}
+                        onClick={() => startAnalysis(singleMode && singleTarget === 'skin' ? "skin_tone" : "face_shape", "camera")}
                         className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
                       >
                         Capture from Web Camera
                       </button>
                <div className=" justify-between  ">
-                       <button
-                        onClick={() => handleManualInput("skin_tone")}
-                        className=" text-white w-full py-3 rounded hover:bg-gray-700 transition-colors"
-                      >
-                        <span className="underline"> Insert Skin Tone Manually</span>
-                      </button>
-                      <button
-                        onClick={() => handleManualInput("face_shape")}
-                        className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
-                      >
-                        <span className="underline"> Insert Face Shape Manually</span>
-                      </button>
+                      {!(singleMode && singleTarget === 'face') && (
+                        <button
+                          onClick={() => handleManualInput("skin_tone")}
+                          className=" text-white w-full py-3 rounded hover:bg-gray-700 transition-colors"
+                        >
+                          <span className="underline"> Insert Skin Tone Manually</span>
+                        </button>
+                      )}
+                      {!(singleMode && singleTarget === 'skin') && (
+                        <button
+                          onClick={() => handleManualInput("face_shape")}
+                          className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                        >
+                          <span className="underline"> Insert Face Shape Manually</span>
+                        </button>
+                      )}
                </div>
                     
                       <button
@@ -1595,8 +1703,16 @@ export default function Onboarding() {
                           Back
                         </button>
                         <button
-                          onClick={handleNext}
-                          disabled={!analysisData.skin_tone}
+                          onClick={() => {
+                            if (singleMode && singleTarget === 'skin') {
+                              saveSingleModeAndReturn({ skin_tone: analysisData.skin_tone });
+                            } else if (singleMode && singleTarget === 'face') {
+                              saveSingleModeAndReturn({ face_shape: analysisData.face_shape || null });
+                            } else {
+                              handleNext();
+                            }
+                          }}
+                          disabled={singleMode ? (singleTarget === 'skin' ? !analysisData.skin_tone : !analysisData.face_shape) : !analysisData.skin_tone}
                           className="px-8 py-3 w-full rounded-lg bg-[white]/10 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-600 hover:to-purple-700 transition-all"
                         >
                           Next
@@ -1680,9 +1796,21 @@ export default function Onboarding() {
     const [analysisResults, setAnalysisResults] = useState<string[]>([]);
     const [isAnalyzing, setIsAnalyzing] = useState(false);
     const [showManualInput, setShowManualInput] = useState(false);
+    const [showManualMeasurements, setShowManualMeasurements] = useState(false);
     const [showCamera, setShowCamera] = useState(false);
     const [countdown, setCountdown] = useState(0);
     const [isAutoCapturing, setIsAutoCapturing] = useState(false);
+    const [measurements, setMeasurements] = useState({
+      bust: '',
+      waist: '',
+      hips: '',
+      shoulders: '',
+      chest: '',
+      bicep: '',
+      neck: '',
+      calf: ''
+    });
+    const [unit, setUnit] = useState<'cm' | 'in'>('cm');
 
     const [uploadedImage, setUploadedImage] = useState<string | null>(null);
     const [showUpload, setShowUpload] = useState(false);
@@ -1929,6 +2057,56 @@ export default function Onboarding() {
       setShowManualInput(false);
     };
 
+    const handleManualMeasurements = () => {
+      setShowManualMeasurements(true);
+      setShowManualInput(false);
+      setShowCamera(false);
+      setShowUpload(false);
+    };
+
+    const analyzeMeasurements = () => {
+      // Convert measurements to numbers and cm if needed
+      const measurementData: any = {};
+      Object.keys(measurements).forEach(key => {
+        const value = measurements[key as keyof typeof measurements];
+        if (value && !isNaN(Number(value))) {
+          let numValue = Number(value);
+          if (unit === 'in') {
+            numValue = inchesToCm(numValue);
+          }
+          measurementData[key] = numValue;
+        }
+      });
+
+      // Analyze based on gender
+      let results;
+      if (userData.gender === 'female') {
+        results = guessFemaleType(measurementData);
+      } else {
+        results = guessMaleType(measurementData);
+      }
+
+      if (results && results.length > 0) {
+        const bestMatch = results[0];
+        setAnalysisData((prev) => ({ 
+          ...prev, 
+          body_shape: bestMatch.label 
+        }));
+        setAnalysisResults([bestMatch.label]);
+        setProgress(100);
+      }
+
+      setShowManualMeasurements(false);
+      setCurrentAnalysis(null);
+    };
+
+    const updateMeasurement = (field: string, value: string) => {
+      setMeasurements(prev => ({
+        ...prev,
+        [field]: value
+      }));
+    };
+
     // Upload Analysis Component
     const UploadAnalysis = () => (
       <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6">
@@ -1987,6 +2165,211 @@ export default function Onboarding() {
         >
           Manual Input Instead
         </button>
+      </div>
+    );
+
+    // Manual Measurements Component
+    const ManualMeasurementsInput = () => (
+      <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6">
+        <h3 className="text-xl font-semibold mb-4 text-center">
+          Manual Measurements
+          <span className="ml-2 text-sm px-2 py-1 rounded bg-green-500/20 text-green-300">
+            Measurements
+          </span>
+        </h3>
+        
+        <p className="text-sm text-gray-300 text-center mb-6">
+          Enter your body measurements for accurate body type analysis
+        </p>
+
+        {/* Unit Toggle */}
+        <div className="flex justify-center mb-6">
+          <div className="bg-white/10 rounded-lg p-1">
+            <button
+              onClick={() => setUnit('cm')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                unit === 'cm' 
+                  ? 'bg-blue-500 text-white' 
+                  : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              Centimeters
+            </button>
+            <button
+              onClick={() => setUnit('in')}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
+                unit === 'in' 
+                  ? 'bg-blue-500 text-white' 
+                  : 'text-gray-300 hover:text-white'
+              }`}
+            >
+              Inches
+            </button>
+          </div>
+        </div>
+
+        {/* Measurement Inputs */}
+        <div className="space-y-4">
+          {userData.gender === 'female' ? (
+            // Female measurements
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Bust ({unit})
+                  </label>
+                  <input
+                    type="number"
+                    value={measurements.bust}
+                    onChange={(e) => updateMeasurement('bust', e.target.value)}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    placeholder="Enter bust measurement"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Waist ({unit})
+                  </label>
+                  <input
+                    type="number"
+                    value={measurements.waist}
+                    onChange={(e) => updateMeasurement('waist', e.target.value)}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    placeholder="Enter waist measurement"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Hips ({unit})
+                  </label>
+                  <input
+                    type="number"
+                    value={measurements.hips}
+                    onChange={(e) => updateMeasurement('hips', e.target.value)}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    placeholder="Enter hips measurement"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Shoulders ({unit})
+                  </label>
+                  <input
+                    type="number"
+                    value={measurements.shoulders}
+                    onChange={(e) => updateMeasurement('shoulders', e.target.value)}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    placeholder="Enter shoulders measurement"
+                  />
+                </div>
+              </div>
+            </>
+          ) : (
+            // Male measurements
+            <>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Chest ({unit})
+                  </label>
+                  <input
+                    type="number"
+                    value={measurements.chest}
+                    onChange={(e) => updateMeasurement('chest', e.target.value)}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    placeholder="Enter chest measurement"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Waist ({unit})
+                  </label>
+                  <input
+                    type="number"
+                    value={measurements.waist}
+                    onChange={(e) => updateMeasurement('waist', e.target.value)}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    placeholder="Enter waist measurement"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Shoulders ({unit})
+                  </label>
+                  <input
+                    type="number"
+                    value={measurements.shoulders}
+                    onChange={(e) => updateMeasurement('shoulders', e.target.value)}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    placeholder="Enter shoulders measurement"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Bicep ({unit})
+                  </label>
+                  <input
+                    type="number"
+                    value={measurements.bicep}
+                    onChange={(e) => updateMeasurement('bicep', e.target.value)}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    placeholder="Enter bicep measurement"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Neck ({unit})
+                  </label>
+                  <input
+                    type="number"
+                    value={measurements.neck}
+                    onChange={(e) => updateMeasurement('neck', e.target.value)}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    placeholder="Enter neck measurement"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-300 mb-2">
+                    Calf ({unit})
+                  </label>
+                  <input
+                    type="number"
+                    value={measurements.calf}
+                    onChange={(e) => updateMeasurement('calf', e.target.value)}
+                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
+                    placeholder="Enter calf measurement"
+                  />
+                </div>
+              </div>
+            </>
+          )}
+        </div>
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-3 mt-6">
+          <button
+            onClick={analyzeMeasurements}
+            className="flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+          >
+            Analyze Measurements
+          </button>
+          <button
+            onClick={() => setShowManualMeasurements(false)}
+            className="flex-1 bg-gray-600 text-white py-3 px-6 rounded-lg hover:bg-gray-700 transition-colors font-medium"
+          >
+            Cancel
+          </button>
+        </div>
+
+        {/* Help Text */}
+        <div className="mt-4 text-center">
+          <p className="text-xs text-gray-400">
+            {userData.gender === 'female' 
+              ? 'Enter at least bust, waist, and hips for best results'
+              : 'Enter at least chest, waist, and shoulders for best results'
+            }
+          </p>
+        </div>
       </div>
     );
 
@@ -2233,6 +2616,8 @@ export default function Onboarding() {
                     userData={userData}
                     handleManualSelection={handleManualSelection}
                   />
+                ) : showManualMeasurements ? (
+                  <ManualMeasurementsInput />
                 ) : currentAnalysis === "body_shape" && !showManualInput && !showUpload ? (
                   <CameraAnalysis />
                 ) : (
@@ -2312,6 +2697,14 @@ export default function Onboarding() {
                   <span className="underline">Or Insert Manually</span>
                 </button>
 
+                {/* Manual Measurements */}
+                <button
+                  onClick={handleManualMeasurements}
+                  className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                >
+                  📏 Insert Measurements Manually
+                </button>
+
                 {/* Navigation */}
                 <div className="flex justify-between gap-4 mt-6">
                   <button
@@ -2321,7 +2714,13 @@ export default function Onboarding() {
                     Back
                   </button>
                   <button
-                    onClick={handleNext}
+                    onClick={() => {
+                      if (singleMode && singleTarget === 'body') {
+                        saveSingleModeAndReturn({ body_shape: analysisData.body_shape || null });
+                      } else {
+                        handleNext();
+                      }
+                    }}
                     disabled={!analysisData.body_shape}
                     className="w-1/2 py-3 rounded-lg bg-[#444141] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#555] transition-all"
                   >
@@ -2376,8 +2775,13 @@ export default function Onboarding() {
               />
             )}
 
+            {/* Show manual measurements if active */}
+            {showManualMeasurements && (
+              <ManualMeasurementsInput />
+            )}
+
             {/* Show analysis options if no analysis is active */}
-            {!currentAnalysis && !showManualInput && (
+            {!currentAnalysis && !showManualInput && !showManualMeasurements && (
               <div className="w-full md:w-[100vw] md:h-[80vh] gap-8">
                 {/* Body Analysis */}
                 <div className="backdrop-blur-lg rounded-xl p-6 mt-20">
@@ -2446,6 +2850,14 @@ export default function Onboarding() {
                         className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
                       >
                         <span className="underline">Manual Selection</span>
+                      </button>
+
+                      {/* Manual Measurements */}
+                      <button
+                        onClick={handleManualMeasurements}
+                        className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                      >
+                        📏 Insert Measurements Manually
                       </button>
 
                     
@@ -2818,6 +3230,8 @@ export default function Onboarding() {
   // Step 6: Complete Component
   const CompleteStep = ({ userData }: any) => {
     const handleComplete = async () => {
+      // Update user data with onboarding completed flag
+      const completedUserData = { ...userData, onboarding_completed: true };
       markOnboardingCompleted();
       
       // Complete onboarding by sending all user data to backend
@@ -2830,13 +3244,14 @@ export default function Onboarding() {
           const response = await axios.put(
             `${API_URL}/auth/update-onboarding`,
             {
-              name: userData.name,
-              gender: userData.gender,
-              location: userData.location || "Mumbai", // Default location
-              skin_tone: userData.skin_tone,
-              face_shape: userData.face_shape,
-              body_shape: userData.body_shape,
-              personality: userData.personality
+              name: completedUserData.name,
+              gender: completedUserData.gender,
+              location: completedUserData.location || "Mumbai", // Default location
+              skin_tone: completedUserData.skin_tone,
+              face_shape: completedUserData.face_shape,
+              body_shape: completedUserData.body_shape,
+              personality: completedUserData.personality,
+              onboarding_completed: true
             },
             {
               headers: {
@@ -2849,8 +3264,8 @@ export default function Onboarding() {
           if (response.status === 200) {
             console.log('Onboarding completed successfully:', response.data);
             
-            // Store user data in localStorage for other pages to access
-            localStorage.setItem('aurasync_user_data', JSON.stringify(userData));
+            // Store updated user data in localStorage for other pages to access
+            localStorage.setItem('aurasync_user_data', JSON.stringify(completedUserData));
           } else {
             console.error('Failed to complete onboarding');
           }
@@ -2860,8 +3275,8 @@ export default function Onboarding() {
         // Continue with redirect even if backend sync fails
       }
       
-      // Redirect to gender-specific homepage
-      router.push(userData.gender === "male" ? "/male" : "/female");
+      // Redirect to dashboard after completing onboarding
+      router.push("/dashboard");
     };
 
     return (
