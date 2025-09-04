@@ -1354,15 +1354,15 @@ export default function Onboarding() {
           <ProgressBar currentStep={STEPS.SKIN_FACE_ANALYSIS} />
         </div>
 
-        <div className="w-full flex flex-col md:flex-row gap-6">
+        <div className="w-full flex flex-col md:flex-row gap-6 items-stretch">
           {/* LEFT PANEL: IMAGE / CAMERA / UPLOAD */}
-          <div className="md:w-[65%] w-full flex items-center justify-center h-[60vh] md:h-[80vh] relative rounded-lg overflow-hidden">
+          <div className="md:w-[65%] w-full flex items-center justify-center relative rounded-lg overflow-hidden min-h-[60vh] md:min-h-[80vh]">
             {showUpload && uploadedImage ? (
               <Image
                 src={uploadedImage}
                 alt="Uploaded face"
                 fill
-                className="object-contain"
+                className=" object-fit lg:object-contain"
               />
             ) : showManualInput && currentAnalysis === "skin_tone" ? (
               <SkinToneManualInput />
@@ -1414,7 +1414,7 @@ export default function Onboarding() {
                           </div>
                         </div>
                       </div>
-            <div className="w-full bg-[#444141] p-5 rounded-3xl text-white">
+            <div className="w-full bg-[#444141] p-3 px-6 rounded-3xl text-white">
 
               
               <h1 className="text-xl font-bold mb-4">
@@ -1436,7 +1436,7 @@ export default function Onboarding() {
             {singleMode ? (
               singleTarget === 'skin' ? (
                 <>
-                  <div className="flex flex-col items-center bg-[#444141] p-4 rounded-3xl text-center">
+                  <div className="flex flex-col items-center bg-[#444141]  rounded-3xl text-center">
                     <h1 className="text-lg font-bold mb-3">Upload picture from your device</h1>
                     <button
                       onClick={() => startAnalysis("skin_tone", "upload")}
@@ -1496,7 +1496,7 @@ export default function Onboarding() {
               {!(singleMode && singleTarget === 'face') && (
                 <button
                   onClick={() => handleManualInput("skin_tone")}
-                  className=" text-white w-full py-3 rounded hover:bg-gray-700 transition-colors"
+                  className=" text-white w-full py-1 rounded hover:bg-gray-700 transition-colors"
                 >
                   <span className="underline"> Insert Skin Tone Manually</span>
                 </button>
@@ -1504,7 +1504,7 @@ export default function Onboarding() {
               {!(singleMode && singleTarget === 'skin') && (
                 <button
                   onClick={() => handleManualInput("face_shape")}
-                  className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                  className="w-full text-white py-1 rounded-lg hover:bg-gray-700 transition-colors"
                 >
                   <span className="underline"> Insert Face Shape Manually</span>
                 </button>
@@ -2601,9 +2601,9 @@ export default function Onboarding() {
               <ProgressBar currentStep={STEPS.BODY_ANALYSIS} />
             </div>
 
-            <div className="w-full flex flex-col md:flex-row gap-6">
+            <div className="w-full flex flex-col md:flex-row gap-6 items-stretch">
               {/* LEFT PANEL: IMAGE / CAMERA / UPLOAD */}
-              <div className="md:w-[65%] w-full flex items-center justify-center h-[60vh] md:h-[80vh] relative rounded-lg overflow-hidden">
+               <div className="md:w-[65%] w-full flex items-center justify-center relative rounded-lg overflow-hidden min-h-[60vh] md:min-h-[80vh]">
                 {showUpload && uploadedImage ? (
                   <Image
                     src={uploadedImage}
@@ -2675,7 +2675,7 @@ export default function Onboarding() {
                   </h1>
                   <button
                     onClick={() => startAnalysis("body_shape", "upload")}
-                    className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
+                    className="border-2 border-white px-6  text-white rounded-full font-semibold hover:border-white/70 transition-all"
                   >
                     Upload +
                   </button>
