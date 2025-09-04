@@ -27,6 +27,7 @@ import MobilePersonalityPhoto from "@/app/assets/onboarding/personalityMobile.pn
 import { Check } from "lucide-react";
 import male from "@/app/assets/man-avatar.png";
 import female from "@/app/assets/woman-outline.png";
+import mobilecam from '@/app/assets/MobileCamera.png'
 
 // Body Type Images - Using placeholder for now
 const HourglassImage = "/placeholder.png";
@@ -159,14 +160,14 @@ export default function Onboarding() {
       try {
         setIsLoading(true);
         const result = await signInWithPopup(auth, googleProvider);
-        
+
         if (result.user) {
           // Get the Firebase ID token
           const idToken = await result.user.getIdToken();
-          
+
           // Call backend API to verify token and create/update user
           const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-          
+
           try {
             const response = await axios.post(
               `${API_URL}/auth/verify-user`,
@@ -185,7 +186,7 @@ export default function Onboarding() {
             );
 
             const backendUserData = response.data;
-            
+
             // Create user data for frontend state
             const userData: UserData = {
               email: backendUserData.email || result.user.email || "",
@@ -201,17 +202,17 @@ export default function Onboarding() {
 
             setUserData(userData);
             setUserDataState(userData);
-            
+
             // If user is new, proceed to onboarding
             if (!backendUserData.onboarding_completed) {
               setCurrentStep(STEPS.BASIC_INFO);
             } else {
               // If user exists but onboarding is not completed
-              router.push(backendUserData.gender == "male"? "/male":"/female");
+              router.push(backendUserData.gender == "male" ? "/male" : "/female");
             }
-            
+
             console.log("User authenticated and verified:", backendUserData);
-            
+
           } catch (apiError: any) {
             console.error("Backend API error:", apiError);
             if (apiError.response?.status === 401) {
@@ -239,13 +240,13 @@ export default function Onboarding() {
     React.useEffect(() => {
       const unsubscribe = onAuthStateChanged(auth, async (user) => {
         setUser(user);
-        
+
         // If user is already authenticated, verify with backend
         if (user) {
           try {
             const idToken = await user.getIdToken();
             const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-            
+
             const response = await axios.post(
               `${API_URL}/auth/verify-user`,
               {
@@ -263,7 +264,7 @@ export default function Onboarding() {
             );
 
             const backendUserData = response.data;
-            
+
             // Create user data for frontend state
             const userData: UserData = {
               email: backendUserData.email || user.email || "",
@@ -279,12 +280,12 @@ export default function Onboarding() {
 
             setUserData(userData);
             setUserDataState(userData);
-            
+
             // If user exists but onboarding is not completed, continue from where they left off
             if (!backendUserData.is_new_user) {
               setCurrentStep(STEPS.BASIC_INFO);
             }
-            
+
           } catch (error) {
             console.error("Failed to verify user with backend:", error);
             // If backend verification fails, sign out the user
@@ -319,53 +320,53 @@ export default function Onboarding() {
             {isLoading ? (
               <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
             ) : (
-            <svg className="w-6 h-6" viewBox="0 0 24 24">
-              <path
-                fill="#4285F4"
-                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
-              />
-              <path
-                fill="#34A853"
-                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
-              />
-              <path
-                fill="#FBBC05"
-                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
-              />
-              <path
-                fill="#EA4335"
-                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
-              />
-            </svg>
+              <svg className="w-6 h-6" viewBox="0 0 24 24">
+                <path
+                  fill="#4285F4"
+                  d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                />
+                <path
+                  fill="#34A853"
+                  d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                />
+                <path
+                  fill="#FBBC05"
+                  d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"
+                />
+                <path
+                  fill="#EA4335"
+                  d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                />
+              </svg>
             )}
             {isLoading ? "Signing in..." : "Continue with Google"}
           </button>
 
           {!user && (
-          <div className="mt-8">
-            <button
-              onClick={() => {
-                // For testing - skip to next step
-                const mockUserData: UserData = {
-                  email: "test@gmail.com",
-                  name: "",
-                  gender: "",
-                  location: "Mumbai",
-                  skin_tone: "",
-                  face_shape: null,
-                  body_shape: null,
-                  personality: null,
-                  onboarding_completed: false,
-                };
-                setUserData(mockUserData);
-                setUserDataState(mockUserData);
-                setCurrentStep(STEPS.BASIC_INFO);
-              }}
-              className="text-gray-400 hover:text-white transition-colors"
-            >
+            <div className="mt-8">
+              <button
+                onClick={() => {
+                  // For testing - skip to next step
+                  const mockUserData: UserData = {
+                    email: "test@gmail.com",
+                    name: "",
+                    gender: "",
+                    location: "Mumbai",
+                    skin_tone: "",
+                    face_shape: null,
+                    body_shape: null,
+                    personality: null,
+                    onboarding_completed: false,
+                  };
+                  setUserData(mockUserData);
+                  setUserDataState(mockUserData);
+                  setCurrentStep(STEPS.BASIC_INFO);
+                }}
+                className="text-gray-400 hover:text-white transition-colors"
+              >
                 Skip for testing →
-            </button>
-          </div>
+              </button>
+            </div>
           )}
         </div>
       </motion.div>
@@ -391,13 +392,12 @@ export default function Onboarding() {
                 {/* Step Circle */}
                 <div
                   className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold z-10
-                  ${
-                    isActive
+                  ${isActive
                       ? "bg-green-500 text-white"
                       : isCompleted
-                      ? "bg-green-600 text-white"
-                      : "bg-gray-900 text-white"
-                  }
+                        ? "bg-green-600 text-white"
+                        : "bg-gray-900 text-white"
+                    }
                 `}
                 >
                   {isCompleted ? <Check size={16} /> : index + 1}
@@ -436,13 +436,12 @@ export default function Onboarding() {
                 {/* Step Circle */}
                 <div
                   className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold mb-2 z-10
-                  ${
-                    isActive
+                  ${isActive
                       ? "bg-green-500 text-white"
                       : isCompleted
-                      ? "bg-green-600 text-white"
-                      : "bg-gray-900 text-white"
-                  }
+                        ? "bg-green-600 text-white"
+                        : "bg-gray-900 text-white"
+                    }
                 `}
                 >
                   {isCompleted ? <Check size={8} /> : index + 1}
@@ -488,14 +487,14 @@ export default function Onboarding() {
           name: localName,
           gender: localGender,
         };
-        
+
         // Update local state only
         updateUserData(updatedData);
         setUserDataState(updatedData);
-        
+
         // Update localStorage with the new data
         localStorage.setItem('aurasync_user_data', JSON.stringify(updatedData));
-        
+
         setCurrentStep(STEPS.SKIN_FACE_ANALYSIS);
       }
     };
@@ -543,11 +542,10 @@ export default function Onboarding() {
                   <button
                     type="button"
                     onClick={() => setLocalGender("male")}
-                    className={`p-4 rounded-lg border-2 transition-colors ${
-                      localGender === "male"
-                        ? "border-blue-400 bg-blue-400/20"
-                        : "border-white/30 bg-white/10 hover:border-white/50"
-                    }`}
+                    className={`p-4 rounded-lg border-2 transition-colors ${localGender === "male"
+                      ? "border-blue-400 bg-blue-400/20"
+                      : "border-white/30 bg-white/10 hover:border-white/50"
+                      }`}
                   >
                     <div className="text-center">
                       <div className="text-2xl mb-2 flex items-center justify-center">
@@ -560,11 +558,10 @@ export default function Onboarding() {
                   <button
                     type="button"
                     onClick={() => setLocalGender("female")}
-                    className={`p-4 rounded-lg border-2 transition-colors ${
-                      localGender === "female"
-                        ? "border-pink-400 bg-pink-400/20"
-                        : "border-white/30 bg-white/10 hover:border-white/50"
-                    }`}
+                    className={`p-4 rounded-lg border-2 transition-colors ${localGender === "female"
+                      ? "border-pink-400 bg-pink-400/20"
+                      : "border-white/30 bg-white/10 hover:border-white/50"
+                      }`}
                   >
                     <div className="text-center">
                       <div className="text-2xl mb-2 flex items-center justify-center">
@@ -629,11 +626,10 @@ export default function Onboarding() {
                   <button
                     type="button"
                     onClick={() => setLocalGender("male")}
-                    className={`p-3 rounded-lg border-2 transition-colors ${
-                      localGender === "male"
-                        ? "border-blue-400 bg-blue-400/20"
-                        : "border-white/30 bg-white/10 hover:border-white/50"
-                    }`}
+                    className={`p-3 rounded-lg border-2 transition-colors ${localGender === "male"
+                      ? "border-blue-400 bg-blue-400/20"
+                      : "border-white/30 bg-white/10 hover:border-white/50"
+                      }`}
                   >
                     <div className="text-center">
                       <div className="text-xl mb-2 flex items-center justify-center">
@@ -646,11 +642,10 @@ export default function Onboarding() {
                   <button
                     type="button"
                     onClick={() => setLocalGender("female")}
-                    className={`p-3 rounded-lg border-2 transition-colors ${
-                      localGender === "female"
-                        ? "border-pink-400 bg-pink-400/20"
-                        : "border-white/30 bg-white/10 hover:border-white/50"
-                    }`}
+                    className={`p-3 rounded-lg border-2 transition-colors ${localGender === "female"
+                      ? "border-pink-400 bg-pink-400/20"
+                      : "border-white/30 bg-white/10 hover:border-white/50"
+                      }`}
                   >
                     <div className="text-center">
                       <div className="text-xl mb-2 flex items-center justify-center">
@@ -714,15 +709,18 @@ export default function Onboarding() {
     const videoRef = useRef<HTMLVideoElement>(null);
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
+    // Mobile-only preloader before starting camera capture
+    const [isMobilePreloading, setIsMobilePreloading] = useState(false);
+
     const handleNext = () => {
       if (analysisData.skin_tone) {
         const updatedData = { ...userData, ...analysisData };
         updateUserData(updatedData);
         setUserDataState(updatedData);
-        
+
         // Update localStorage with the new data
         localStorage.setItem('aurasync_user_data', JSON.stringify(updatedData));
-        
+
         setCurrentStep(STEPS.BODY_ANALYSIS);
       }
     };
@@ -755,6 +753,16 @@ export default function Onboarding() {
         // Start automatic capture process
         startAutoCapture();
       }
+    };
+
+    // Triggered only from Mobile UI: show 3s preloader, then start camera capture
+    const handleMobileCaptureClick = async () => {
+      // Determine which analysis to run based on current singleMode/target
+      const targetType = singleMode && singleTarget === 'skin' ? "skin_tone" : "face_shape";
+      setIsMobilePreloading(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setIsMobilePreloading(false);
+      startAnalysis(targetType as "skin_tone" | "face_shape", "camera");
     };
 
     const startAutoCapture = async () => {
@@ -1112,9 +1120,8 @@ export default function Onboarding() {
                     {questions.map((_, index) => (
                       <div
                         key={index}
-                        className={`w-2 h-2 rounded-full ${
-                          index <= currentQuestion ? "bg-white" : "bg-white/30"
-                        }`}
+                        className={`w-2 h-2 rounded-full ${index <= currentQuestion ? "bg-white" : "bg-white/30"
+                          }`}
                       />
                     ))}
                   </div>
@@ -1123,9 +1130,8 @@ export default function Onboarding() {
                   <div
                     className="bg-gradient-to-r from-green-500 to-emerald-600 h-2 rounded-full transition-all duration-500"
                     style={{
-                      width: `${
-                        ((currentQuestion + 1) / questions.length) * 100
-                      }%`,
+                      width: `${((currentQuestion + 1) / questions.length) * 100
+                        }%`,
                     }}
                   />
                 </div>
@@ -1147,14 +1153,13 @@ export default function Onboarding() {
                     <div className="flex justify-between items-center">
                       <span>{option}</span>
                       <span
-                        className={`text-xs px-2 py-1 rounded ${
-                          questions[currentQuestion].values[index] === "WARM"
-                            ? "bg-orange-500/20 text-orange-300"
-                            : questions[currentQuestion].values[index] ===
-                              "COLD"
+                        className={`text-xs px-2 py-1 rounded ${questions[currentQuestion].values[index] === "WARM"
+                          ? "bg-orange-500/20 text-orange-300"
+                          : questions[currentQuestion].values[index] ===
+                            "COLD"
                             ? "bg-blue-500/20 text-blue-300"
                             : "bg-gray-500/20 text-gray-300"
-                        }`}
+                          }`}
                       >
                         {questions[currentQuestion].values[index]}
                       </span>
@@ -1194,13 +1199,12 @@ export default function Onboarding() {
                     <span className="text-gray-300">Answer:</span>{" "}
                     {q.options[q.values.indexOf(answers[index])]}
                     <span
-                      className={`ml-2 text-xs px-2 py-1 rounded ${
-                        answers[index] === "WARM"
-                          ? "bg-orange-500/20 text-orange-300"
-                          : answers[index] === "COLD"
+                      className={`ml-2 text-xs px-2 py-1 rounded ${answers[index] === "WARM"
+                        ? "bg-orange-500/20 text-orange-300"
+                        : answers[index] === "COLD"
                           ? "bg-blue-500/20 text-blue-300"
                           : "bg-gray-500/20 text-gray-300"
-                      }`}
+                        }`}
                     >
                       {answers[index]}
                     </span>
@@ -1288,7 +1292,7 @@ export default function Onboarding() {
           <div className="mb-6 flex flex-col items-center">
             <video
               ref={videoRef}
-              className="w-full max-w-md rounded-lg border-2 border-gray-700 mb-2 shadow-lg"
+              className="w-full md:max-w-md rounded-lg border-2 border-gray-700 mb-2 shadow-lg"
               autoPlay
               playsInline
             />
@@ -1342,214 +1346,212 @@ export default function Onboarding() {
     return (
       <>
         {/**desktop */}
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: -20 }}
-      className="min-h-screen hidden md:flex bg-[#251F1E] items-center justify-center text-white p-4 md:p-8"
-    >
-      <div className=" mx-auto flex flex-col items-center w-full">
-        {/* Progress */}
-        <div className="w-full mb-6">
-          <ProgressBar currentStep={STEPS.SKIN_FACE_ANALYSIS} />
-        </div>
-
-        <div className="w-full flex flex-col md:flex-row gap-6 items-stretch">
-          {/* LEFT PANEL: IMAGE / CAMERA / UPLOAD */}
-          <div className="md:w-[65%] w-full flex items-center justify-center relative rounded-lg overflow-hidden min-h-[60vh] md:min-h-[80vh]">
-            {showUpload && uploadedImage ? (
-              <Image
-                src={uploadedImage}
-                alt="Uploaded face"
-                fill
-                className=" object-fit lg:object-contain"
-              />
-            ) : showManualInput && currentAnalysis === "skin_tone" ? (
-              <SkinToneManualInput />
-            ) : showManualInput && currentAnalysis === "face_shape" ? (
-              <FaceShapeManualInput />
-            ) : currentAnalysis === "face_shape" && !showManualInput && !showUpload ? (
-              <CameraAnalysis />
-            ) : (
-              <Image
-                src={FacePhoto}
-                alt="Placeholder Face"
-                fill
-                className="object-contain"
-              />
-            )}
-          </div>
-
-          {/* RIGHT PANEL: CONTROLS */}
-          <div className="md:w-[35%] w-full flex flex-col space-y-6">
-            {/* Instructions */}
-              <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
-                        <h3 className="text-lg font-bold mb-3">
-                          Analysis Status
-                        </h3>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">Skin Tone:</span>
-                            <span
-                              className={`text-sm px-2 py-1 rounded ${
-                                analysisData.skin_tone
-                                  ? "bg-green-500/20 text-green-300"
-                                  : "bg-gray-500/20 text-gray-300"
-                              }`}
-                            >
-                              {analysisData.skin_tone || "Pending"}
-                            </span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">Face Shape:</span>
-                            <span
-                              className={`text-sm px-2 py-1 rounded ${
-                                analysisData.face_shape
-                                  ? "bg-green-500/20 text-green-300"
-                                  : "bg-yellow-500/20 text-yellow-300"
-                              }`}
-                            >
-                              {analysisData.face_shape || "Optional"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-            <div className="w-full bg-[#444141] p-3 px-6 rounded-3xl text-white">
-
-              
-              <h1 className="text-xl font-bold mb-4">
-                Face & Skin Analysis Instructions
-              </h1>
-              <ul className="list-disc list-inside text-sm space-y-2 mb-3">
-                <li>Sit in a well-lit area (avoid shadows or backlight).</li>
-                <li>Keep your head straight and look directly into the camera.</li>
-                <li>Remove glasses, masks, or anything covering your face.</li>
-                <li>Stay still for a few seconds while we scan.</li>
-              </ul>
-              <p className="text-sm">
-                ✨ <span className="font-semibold">Tip:</span> Natural daylight
-                works best for accurate skin tone detection.
-              </p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="min-h-screen hidden md:flex bg-[#251F1E] items-center justify-center text-white p-4 md:p-8"
+        >
+          <div className=" mx-auto flex flex-col items-center w-full">
+            {/* Progress */}
+            <div className="w-full mb-6">
+              <ProgressBar currentStep={STEPS.SKIN_FACE_ANALYSIS} />
             </div>
 
-            {/* Upload/Capture Section - switches to Skin when target=skin */}
-            {singleMode ? (
-              singleTarget === 'skin' ? (
-                <>
-                  <div className="flex flex-col items-center bg-[#444141]  rounded-3xl text-center">
-                    <h1 className="text-lg font-bold mb-3">Upload picture from your device</h1>
-                    <button
-                      onClick={() => startAnalysis("skin_tone", "upload")}
-                      className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
-                    >
-                      Upload +
-                    </button>
+            <div className="w-full flex flex-col md:flex-row gap-6 items-stretch">
+              {/* LEFT PANEL: IMAGE / CAMERA / UPLOAD */}
+              <div className="md:w-[65%] w-full flex items-center justify-center relative rounded-lg overflow-hidden min-h-[60vh] md:min-h-[80vh]">
+                {showUpload && uploadedImage ? (
+                  <Image
+                    src={uploadedImage}
+                    alt="Uploaded face"
+                    fill
+                    className=" object-fit lg:object-contain"
+                  />
+                ) : showManualInput && currentAnalysis === "skin_tone" ? (
+                  <SkinToneManualInput />
+                ) : showManualInput && currentAnalysis === "face_shape" ? (
+                  <FaceShapeManualInput />
+                ) : currentAnalysis === "face_shape" && !showManualInput && !showUpload ? (
+                  <CameraAnalysis />
+                ) : (
+                  <Image
+                    src={FacePhoto}
+                    alt="Placeholder Face"
+                    fill
+                    className="object-contain"
+                  />
+                )}
+              </div>
+
+              {/* RIGHT PANEL: CONTROLS */}
+              <div className="md:w-[35%] w-full flex flex-col space-y-6">
+                {/* Instructions */}
+                <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
+                  <h3 className="text-lg font-bold mb-3">
+                    Analysis Status
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Skin Tone:</span>
+                      <span
+                        className={`text-sm px-2 py-1 rounded ${analysisData.skin_tone
+                          ? "bg-green-500/20 text-green-300"
+                          : "bg-gray-500/20 text-gray-300"
+                          }`}
+                      >
+                        {analysisData.skin_tone || "Pending"}
+                      </span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Face Shape:</span>
+                      <span
+                        className={`text-sm px-2 py-1 rounded ${analysisData.face_shape
+                          ? "bg-green-500/20 text-green-300"
+                          : "bg-yellow-500/20 text-yellow-300"
+                          }`}
+                      >
+                        {analysisData.face_shape || "Optional"}
+                      </span>
+                    </div>
                   </div>
-                  <button
-                    onClick={() => startAnalysis("skin_tone", "camera")}
-                    className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
-                  >
-                    Capture from Web Camera
-                  </button>
-                </>
-              ) : (
-                <>
-                  <div className="flex flex-col items-center bg-[#444141] p-4 rounded-3xl text-center">
-                    <h1 className="text-lg font-bold mb-3">Upload picture from your device</h1>
+                </div>
+                <div className="w-full bg-[#444141] p-3 px-6 rounded-3xl text-white">
+
+
+                  <h1 className="text-xl font-bold mb-4">
+                    Face & Skin Analysis Instructions
+                  </h1>
+                  <ul className="list-disc list-inside text-sm space-y-2 mb-3">
+                    <li>Sit in a well-lit area (avoid shadows or backlight).</li>
+                    <li>Keep your head straight and look directly into the camera.</li>
+                    <li>Remove glasses, masks, or anything covering your face.</li>
+                    <li>Stay still for a few seconds while we scan.</li>
+                  </ul>
+                  <p className="text-sm">
+                    ✨ <span className="font-semibold">Tip:</span> Natural daylight
+                    works best for accurate skin tone detection.
+                  </p>
+                </div>
+
+                {/* Upload/Capture Section - switches to Skin when target=skin */}
+                {singleMode ? (
+                  singleTarget === 'skin' ? (
+                    <>
+                      <div className="flex flex-col items-center bg-[#444141]  rounded-3xl text-center">
+                        <h1 className="text-lg font-bold mb-3">Upload picture from your device</h1>
+                        <button
+                          onClick={() => startAnalysis("skin_tone", "upload")}
+                          className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
+                        >
+                          Upload +
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => startAnalysis("skin_tone", "camera")}
+                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
+                      >
+                        Capture from Web Camera
+                      </button>
+                    </>
+                  ) : (
+                    <>
+                      <div className="flex flex-col items-center bg-[#444141] p-4 rounded-3xl text-center">
+                        <h1 className="text-lg font-bold mb-3">Upload picture from your device</h1>
+                        <button
+                          onClick={() => startAnalysis("face_shape", "upload")}
+                          className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
+                        >
+                          Upload +
+                        </button>
+                      </div>
+                      <button
+                        onClick={() => startAnalysis("face_shape", "camera")}
+                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
+                      >
+                        Capture from Web Camera
+                      </button>
+                    </>
+                  )
+                ) : (
+                  <>
+                    <div className="flex flex-col items-center bg-[#444141] p-4 rounded-3xl text-center">
+                      <h1 className="text-lg font-bold mb-3">Upload picture from your device</h1>
+                      <button
+                        onClick={() => startAnalysis("face_shape", "upload")}
+                        className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
+                      >
+                        Upload +
+                      </button>
+                    </div>
                     <button
-                      onClick={() => startAnalysis("face_shape", "upload")}
-                      className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
+                      onClick={() => startAnalysis("face_shape", "camera")}
+                      className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
                     >
-                      Upload +
+                      Capture from Web Camera
                     </button>
-                  </div>
+                  </>
+                )}
+
+                {/* Manual Input */}
+                <div className="flex  items-center gap-8 justify-between">
+                  {!(singleMode && singleTarget === 'face') && (
+                    <button
+                      onClick={() => handleManualInput("skin_tone")}
+                      className=" text-white w-full py-1 rounded hover:bg-gray-700 transition-colors"
+                    >
+                      <span className="underline"> Insert Skin Tone Manually</span>
+                    </button>
+                  )}
+                  {!(singleMode && singleTarget === 'skin') && (
+                    <button
+                      onClick={() => handleManualInput("face_shape")}
+                      className="w-full text-white py-1 rounded-lg hover:bg-gray-700 transition-colors"
+                    >
+                      <span className="underline"> Insert Face Shape Manually</span>
+                    </button>
+                  )}
+                </div>
+
+                {/* Navigation */}
+                <div className="flex justify-between gap-4 mt-6">
+                  {!singleMode && (
+                    <button
+                      onClick={() => setCurrentStep(STEPS.BASIC_INFO)}
+                      className="w-1/2 py-3 rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
+                    >
+                      Back
+                    </button>
+                  )}
                   <button
-                    onClick={() => startAnalysis("face_shape", "camera")}
-                    className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
+                    onClick={() => {
+                      if (singleMode && singleTarget === 'skin') {
+                        saveSingleModeAndReturn({ skin_tone: analysisData.skin_tone });
+                      } else if (singleMode && singleTarget === 'face') {
+                        saveSingleModeAndReturn({ face_shape: analysisData.face_shape || null });
+                      } else {
+                        handleNext();
+                      }
+                    }}
+                    disabled={singleMode ? (singleTarget === 'skin' ? !analysisData.skin_tone : !analysisData.face_shape) : !analysisData.skin_tone}
+                    className="w-1/2 py-3 rounded-lg bg-[#444141] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#555] transition-all"
                   >
-                    Capture from Web Camera
-                  </button>
-                </>
-              )
-            ) : (
-              <>
-                <div className="flex flex-col items-center bg-[#444141] p-4 rounded-3xl text-center">
-                  <h1 className="text-lg font-bold mb-3">Upload picture from your device</h1>
-                  <button
-                    onClick={() => startAnalysis("face_shape", "upload")}
-                    className="border-2 border-white px-6 py-2 text-white rounded-full font-semibold hover:border-white/70 transition-all"
-                  >
-                    Upload +
+                    Next
                   </button>
                 </div>
-                <button
-                  onClick={() => startAnalysis("face_shape", "camera")}
-                  className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555] transition-all"
-                >
-                  Capture from Web Camera
-                </button>
-              </>
-            )}
-
-            {/* Manual Input */}
-            <div className="flex  items-center gap-8 justify-between">
-              {!(singleMode && singleTarget === 'face') && (
-                <button
-                  onClick={() => handleManualInput("skin_tone")}
-                  className=" text-white w-full py-1 rounded hover:bg-gray-700 transition-colors"
-                >
-                  <span className="underline"> Insert Skin Tone Manually</span>
-                </button>
-              )}
-              {!(singleMode && singleTarget === 'skin') && (
-                <button
-                  onClick={() => handleManualInput("face_shape")}
-                  className="w-full text-white py-1 rounded-lg hover:bg-gray-700 transition-colors"
-                >
-                  <span className="underline"> Insert Face Shape Manually</span>
-                </button>
-              )}
+              </div>
             </div>
 
-            {/* Navigation */}
-            <div className="flex justify-between gap-4 mt-6">
-              {!singleMode && (
-                <button
-                  onClick={() => setCurrentStep(STEPS.BASIC_INFO)}
-                  className="w-1/2 py-3 rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
-                >
-                  Back
-                </button>
-              )}
-              <button
-                onClick={() => {
-                  if (singleMode && singleTarget === 'skin') {
-                    saveSingleModeAndReturn({ skin_tone: analysisData.skin_tone });
-                  } else if (singleMode && singleTarget === 'face') {
-                    saveSingleModeAndReturn({ face_shape: analysisData.face_shape || null });
-                  } else {
-                    handleNext();
-                  }
-                }}
-                disabled={singleMode ? (singleTarget === 'skin' ? !analysisData.skin_tone : !analysisData.face_shape) : !analysisData.skin_tone}
-                className="w-1/2 py-3 rounded-lg bg-[#444141] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#555] transition-all"
-              >
-                Next
-              </button>
-            </div>
+            {/* Hidden file input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handleFileUpload}
+              style={{ display: "none" }}
+            />
           </div>
-        </div>
-
-        {/* Hidden file input */}
-        <input
-          ref={fileInputRef}
-          type="file"
-          accept="image/*"
-          onChange={handleFileUpload}
-          style={{ display: "none" }}
-        />
-      </div>
-    </motion.div>
+        </motion.div>
 
         {/* Mobile */}
         <motion.div
@@ -1577,7 +1579,7 @@ export default function Onboarding() {
                 <div className="mb-8">
                   <CameraAnalysis />
                 </div>
-             )} 
+              )}
 
             {/* Show manual input if active */}
             {showManualInput && currentAnalysis === "skin_tone" && (
@@ -1606,7 +1608,7 @@ export default function Onboarding() {
 
                     {/* Content Section - Now Below */}
                     <div className="w-full flex flex-col space-y-4">
-                        <button
+                      <button
                         onClick={() => setShowFaceInstructions(true)}
                         className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555555] transition-all"
                       >
@@ -1621,11 +1623,10 @@ export default function Onboarding() {
                           <div className="flex items-center justify-between">
                             <span className="text-sm">Skin Tone:</span>
                             <span
-                              className={`text-sm px-2 py-1 rounded ${
-                                analysisData.skin_tone
-                                  ? "bg-green-500/20 text-green-300"
-                                  : "bg-gray-500/20 text-gray-300"
-                              }`}
+                              className={`text-sm px-2 py-1 rounded ${analysisData.skin_tone
+                                ? "bg-green-500/20 text-green-300"
+                                : "bg-gray-500/20 text-gray-300"
+                                }`}
                             >
                               {analysisData.skin_tone || "Pending"}
                             </span>
@@ -1633,11 +1634,10 @@ export default function Onboarding() {
                           <div className="flex items-center justify-between">
                             <span className="text-sm">Face Shape:</span>
                             <span
-                              className={`text-sm px-2 py-1 rounded ${
-                                analysisData.face_shape
-                                  ? "bg-green-500/20 text-green-300"
-                                  : "bg-yellow-500/20 text-yellow-300"
-                              }`}
+                              className={`text-sm px-2 py-1 rounded ${analysisData.face_shape
+                                ? "bg-green-500/20 text-green-300"
+                                : "bg-yellow-500/20 text-yellow-300"
+                                }`}
                             >
                               {analysisData.face_shape || "Optional"}
                             </span>
@@ -1657,30 +1657,30 @@ export default function Onboarding() {
                         </button>
                       </div>
                       <button
-                        onClick={() => startAnalysis(singleMode && singleTarget === 'skin' ? "skin_tone" : "face_shape", "camera")}
+                        onClick={handleMobileCaptureClick}
                         className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
                       >
                         Capture from Web Camera
                       </button>
-               <div className=" justify-between  ">
-                      {!(singleMode && singleTarget === 'face') && (
-                        <button
-                          onClick={() => handleManualInput("skin_tone")}
-                          className=" text-white w-full py-3 rounded hover:bg-gray-700 transition-colors"
-                        >
-                          <span className="underline"> Insert Skin Tone Manually</span>
-                        </button>
-                      )}
-                      {!(singleMode && singleTarget === 'skin') && (
-                        <button
-                          onClick={() => handleManualInput("face_shape")}
-                          className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
-                        >
-                          <span className="underline"> Insert Face Shape Manually</span>
-                        </button>
-                      )}
-               </div>
-                    
+                      <div className=" justify-between  ">
+                        {!(singleMode && singleTarget === 'face') && (
+                          <button
+                            onClick={() => handleManualInput("skin_tone")}
+                            className=" text-white w-full py-3 rounded hover:bg-gray-700 transition-colors"
+                          >
+                            <span className="underline"> Insert Skin Tone Manually</span>
+                          </button>
+                        )}
+                        {!(singleMode && singleTarget === 'skin') && (
+                          <button
+                            onClick={() => handleManualInput("face_shape")}
+                            className="w-full text-white py-3 rounded-lg hover:bg-gray-700 transition-colors"
+                          >
+                            <span className="underline"> Insert Face Shape Manually</span>
+                          </button>
+                        )}
+                      </div>
+
                       <button
                         onClick={() => {
                           // Skip face analysis, only do skin tone
@@ -1732,6 +1732,28 @@ export default function Onboarding() {
               onChange={handleFileUpload}
               style={{ display: "none" }}
             />
+
+            {/* Mobile Preloader Overlay (2s before camera capture) */}
+            {isMobilePreloading && (
+            <div className="fixed inset-0 z-50 flex items-center justify-center ">
+              <motion.div
+                initial={{ clipPath: "circle(0% at 50% 50%)" }}
+                animate={{ clipPath: "circle(150% at 50% 50%)" }}
+                transition={{ duration: 1.5, ease: "easeInOut" }}
+                className="fixed inset-0 z-50"
+              >
+                <Image
+                  fill
+                  alt="image"
+                  src={mobilecam}
+                  className="object-cover"
+                />
+              </motion.div>
+
+            </div>
+
+
+             )} 
 
             {/* Face Instructions Modal */}
             {showFaceInstructions && (
@@ -1815,6 +1837,7 @@ export default function Onboarding() {
     const [uploadedImage, setUploadedImage] = useState<string | null>(null);
     const [showUpload, setShowUpload] = useState(false);
     const [showBodyInstructions, setShowBodyInstructions] = useState(false);
+    const [isMobilePreloadingBody, setIsMobilePreloadingBody] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
     const webcamRef = useRef<Webcam>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -1824,10 +1847,10 @@ export default function Onboarding() {
       const updatedData = { ...userData, body_shape: analysisData.body_shape };
       updateUserData(updatedData);
       setUserDataState(updatedData);
-      
+
       // Update localStorage with the new data
       localStorage.setItem('aurasync_user_data', JSON.stringify(updatedData));
-      
+
       setCurrentStep(STEPS.PERSONALITY_ANALYSIS);
     };
 
@@ -1858,6 +1881,14 @@ export default function Onboarding() {
         // Start automatic capture process
         startAutoCapture();
       }
+    };
+
+    // Triggered only from Mobile UI for body: show 2s preloader, then start camera capture
+    const handleMobileBodyCaptureClick = async () => {
+      setIsMobilePreloadingBody(true);
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setIsMobilePreloadingBody(false);
+      startAnalysis("body_shape", "camera");
     };
 
     const startAutoCapture = async () => {
@@ -2088,9 +2119,9 @@ export default function Onboarding() {
 
       if (results && results.length > 0) {
         const bestMatch = results[0];
-        setAnalysisData((prev) => ({ 
-          ...prev, 
-          body_shape: bestMatch.label 
+        setAnalysisData((prev) => ({
+          ...prev,
+          body_shape: bestMatch.label
         }));
         setAnalysisResults([bestMatch.label]);
         setProgress(100);
@@ -2177,7 +2208,7 @@ export default function Onboarding() {
             Measurements
           </span>
         </h3>
-        
+
         <p className="text-sm text-gray-300 text-center mb-6">
           Enter your body measurements for accurate body type analysis
         </p>
@@ -2187,21 +2218,19 @@ export default function Onboarding() {
           <div className="bg-white/10 rounded-lg p-1">
             <button
               onClick={() => setUnit('cm')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                unit === 'cm' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'text-gray-300 hover:text-white'
-              }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${unit === 'cm'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-300 hover:text-white'
+                }`}
             >
               Centimeters
             </button>
             <button
               onClick={() => setUnit('in')}
-              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-                unit === 'in' 
-                  ? 'bg-blue-500 text-white' 
-                  : 'text-gray-300 hover:text-white'
-              }`}
+              className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${unit === 'in'
+                ? 'bg-blue-500 text-white'
+                : 'text-gray-300 hover:text-white'
+                }`}
             >
               Inches
             </button>
@@ -2364,7 +2393,7 @@ export default function Onboarding() {
         {/* Help Text */}
         <div className="mt-4 text-center">
           <p className="text-xs text-gray-400">
-            {userData.gender === 'female' 
+            {userData.gender === 'female'
               ? 'Enter at least bust, waist, and hips for best results'
               : 'Enter at least chest, waist, and shoulders for best results'
             }
@@ -2483,7 +2512,7 @@ export default function Onboarding() {
           {/* Help text */}
           <div className="mt-6 text-center">
             <p className="text-xs text-gray-400">
-               Hover over each option to see more details
+              Hover over each option to see more details
             </p>
           </div>
         </div>
@@ -2535,7 +2564,7 @@ export default function Onboarding() {
           <div className="mb-6 flex flex-col items-center">
             <video
               ref={videoRef}
-              className="w-full max-w-md rounded-lg border-2 border-gray-700 mb-2 shadow-lg"
+              className="w-full md:max-w-md rounded-lg border-2 border-gray-700 mb-2 shadow-lg"
               autoPlay
               playsInline
             />
@@ -2603,7 +2632,7 @@ export default function Onboarding() {
 
             <div className="w-full flex flex-col md:flex-row gap-6 items-stretch">
               {/* LEFT PANEL: IMAGE / CAMERA / UPLOAD */}
-               <div className="md:w-[65%] w-full flex items-center justify-center relative rounded-lg overflow-hidden min-h-[60vh] md:min-h-[80vh]">
+              <div className="md:w-[65%] w-full flex items-center justify-center relative rounded-lg overflow-hidden min-h-[60vh] md:min-h-[80vh]">
                 {showUpload && uploadedImage ? (
                   <Image
                     src={uploadedImage}
@@ -2632,26 +2661,25 @@ export default function Onboarding() {
 
               {/* RIGHT PANEL: CONTROLS */}
               <div className="md:w-[35%] w-full flex flex-col space-y-6">
-                 <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
-                        <h3 className="text-lg font-bold mb-3">
-                          Analysis Status
-                        </h3>
-                        <div className="space-y-2">
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm">Body Shape:</span>
-                            <span
-                              className={`text-sm px-2 py-1 rounded ${
-                                analysisData.body_shape
-                                  ? "bg-green-500/20 text-green-300"
-                                  : "bg-gray-500/20 text-gray-300"
-                              }`}
-                            >
-                              {analysisData.body_shape || "Pending"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                
+                <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
+                  <h3 className="text-lg font-bold mb-3">
+                    Analysis Status
+                  </h3>
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm">Body Shape:</span>
+                      <span
+                        className={`text-sm px-2 py-1 rounded ${analysisData.body_shape
+                          ? "bg-green-500/20 text-green-300"
+                          : "bg-gray-500/20 text-gray-300"
+                          }`}
+                      >
+                        {analysisData.body_shape || "Pending"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
                 {/* Instructions */}
                 <div className="w-full bg-[#444141] p-5 rounded-3xl text-white">
                   <h1 className="text-xl font-bold mb-4">
@@ -2799,11 +2827,11 @@ export default function Onboarding() {
 
                     {/* Content Section - Now Below */}
                     <div className="w-full flex flex-col space-y-4">
-                        <button
+                      <button
                         onClick={() => setShowBodyInstructions(true)}
                         className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555555] transition-all"
                       >
-                      ‹ Instructions
+                        ‹ Instructions
                       </button>
                       {/* Analysis Status */}
                       <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
@@ -2814,11 +2842,10 @@ export default function Onboarding() {
                           <div className="flex items-center justify-between">
                             <span className="text-sm">Body Shape:</span>
                             <span
-                              className={`text-sm px-2 py-1 rounded ${
-                                analysisData.body_shape
-                                  ? "bg-green-500/20 text-green-300"
-                                  : "bg-gray-500/20 text-gray-300"
-                              }`}
+                              className={`text-sm px-2 py-1 rounded ${analysisData.body_shape
+                                ? "bg-green-500/20 text-green-300"
+                                : "bg-gray-500/20 text-gray-300"
+                                }`}
                             >
                               {analysisData.body_shape || "Pending"}
                             </span>
@@ -2839,10 +2866,10 @@ export default function Onboarding() {
                       </div>
 
                       <button
-                        onClick={() => startAnalysis("body_shape", "camera")}
+                        onClick={handleMobileBodyCaptureClick}
                         className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
                       >
-                     Capture from Web Camera
+                        Capture from Web Camera
                       </button>
 
                       <button
@@ -2860,7 +2887,7 @@ export default function Onboarding() {
                         📏 Insert Measurements Manually
                       </button>
 
-                    
+
 
                       <div className="flex justify-center gap-4 mt-8">
                         <button
@@ -2893,6 +2920,25 @@ export default function Onboarding() {
               onChange={handleFileUpload}
               style={{ display: "none" }}
             />
+
+            {/* Mobile Preloader Overlay for Body (2s before camera capture) */}
+            {isMobilePreloadingBody && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center ">
+                <motion.div
+                  initial={{ clipPath: "circle(0% at 50% 50%)" }}
+                  animate={{ clipPath: "circle(150% at 50% 50%)" }}
+                  transition={{ duration: 1.5, ease: "easeInOut" }}
+                  className="fixed inset-0 z-50"
+                >
+                  <Image
+                    fill
+                    alt="image"
+                    src={mobilecam}
+                    className="object-cover"
+                  />
+                </motion.div>
+              </div>
+            )}
 
             {/* Body Instructions Modal */}
             {showBodyInstructions && (
@@ -2946,10 +2992,10 @@ export default function Onboarding() {
       const updatedData = { ...userData, personality: personalityType };
       updateUserData(updatedData);
       setUserDataState(updatedData);
-      
+
       // Update localStorage with the new data
       localStorage.setItem('aurasync_user_data', JSON.stringify(updatedData));
-      
+
       setCurrentStep(STEPS.COMPLETE);
     };
 
@@ -3053,7 +3099,7 @@ export default function Onboarding() {
           {hasStarted && (
             <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center ">
               <div className="relative w-full h-full md:w-[100vw] md:h-[100vh] bg-[#251F1E] rounded-none md:rounded-2xl p-4 md:p-8 overflow-auto">
-             
+
                 <div className="w-full h-full flex items-center justify-center">
                   <div className="w-full">
                     <PersonalityAnalysisWidget onComplete={handleNext} />
@@ -3239,14 +3285,14 @@ export default function Onboarding() {
       // Update user data with onboarding completed flag
       const completedUserData = { ...userData, onboarding_completed: true };
       markOnboardingCompleted();
-      
+
       // Complete onboarding by sending all user data to backend
       try {
         const currentUser = auth.currentUser;
         if (currentUser) {
           const idToken = await currentUser.getIdToken();
           const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-          
+
           const response = await axios.put(
             `${API_URL}/auth/update-onboarding`,
             {
@@ -3269,7 +3315,7 @@ export default function Onboarding() {
 
           if (response.status === 200) {
             console.log('Onboarding completed successfully:', response.data);
-            
+
             // Store updated user data in localStorage for other pages to access
             localStorage.setItem('aurasync_user_data', JSON.stringify(completedUserData));
           } else {
@@ -3280,9 +3326,9 @@ export default function Onboarding() {
         console.error("Failed to complete onboarding:", error);
         // Continue with redirect even if backend sync fails
       }
-      
+
       // Redirect to dashboard after completing onboarding
-      router.push(completedUserData.gender == "male" ? "/male": "/female");
+      router.push(completedUserData.gender == "male" ? "/male" : "/female");
     };
 
     return (
@@ -3295,10 +3341,10 @@ export default function Onboarding() {
           className="min-h-screen hidden md:flex items-center justify-center bg-[#251F1E]"
         >
           <div className="text-center text-white p-8">
-           
+
             <div className="text-6xl text-center flex gap-6 mb-6">
-             
-              
+
+
             </div>
             <h1 className="text-4xl md:text-6xl font-bold mb-6">
               Welcome to Auraasync!
