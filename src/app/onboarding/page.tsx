@@ -1577,7 +1577,7 @@ export default function Onboarding() {
                 <div className="mb-8">
                   <CameraAnalysis />
                 </div>
-              )}
+             )} 
 
             {/* Show manual input if active */}
             {showManualInput && currentAnalysis === "skin_tone" && (
