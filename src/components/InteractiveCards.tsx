@@ -3,6 +3,7 @@ import Link from 'next/link';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { motion, useReducedMotion } from 'framer-motion';
+import Image from 'next/image';
 
 // Register GSAP plugins with error handling
 if (typeof window !== 'undefined') {
@@ -40,53 +41,63 @@ const cards = [
   }
 ];
 
-const Card = ({ title, description, imageUrl, blobUrl, imagePosition, cardBackgroundColor, cardBorderColor, link }) => {
+const Card = ({
+  title,
+  description,
+  imageUrl,
+  blobUrl,
+  imagePosition,
+  cardBackgroundColor,
+  cardBorderColor,
+  link,
+}) => {
   const prefersReducedMotion = useReducedMotion();
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
       whileInView={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.8, ease: 'easeOut' }}
+      transition={{ duration: 0.8, ease: "easeOut" }}
       viewport={{ once: true, margin: "0px 0px -100px 0px" }}
-      className="relative w-[95vw] sm:w-[500px] md:w-[750px] lg:w-[950px] min-h-[550px] rounded-2xl overflow-hidden shadow-2xl p-8 md:p-12 border-2"
+      className="relative w-[95vw] sm:w-[500px] md:w-[750px] lg:w-[950px] min-h-[450px] md:min-h-[550px] rounded-2xl overflow-hidden shadow-2xl p-4 sm:p-6 md:p-12 border-2"
       style={{
         backgroundColor: cardBackgroundColor,
         borderColor: cardBorderColor,
-        transformStyle: 'preserve-3d',
-        perspective: '1000px',
-        willChange: 'transform, opacity',
+        transformStyle: "preserve-3d",
+        perspective: "1000px",
+        willChange: "transform, opacity",
       }}
     >
       <Link href={link} className="block h-full">
         <div
-          className={`flex relative h-full flex-col md:flex-row justify-center items-center gap-y-6 md:gap-x-8 ${
-            imagePosition === 'right' ? '' : 'md:flex-row-reverse'
+          className={`flex relative h-full flex-col md:flex-row justify-center items-center gap-y-4 sm:gap-y-6 md:gap-x-8 ${
+            imagePosition === "right" ? "" : "md:flex-row-reverse"
           }`}
         >
           {/* Text Section */}
           <div className="w-full md:w-1/2 flex flex-col items-center md:items-start text-center md:text-left">
-            <h2 className="text-2xl md:text-3xl lg:text-4xl font-bold mb-4 text-white">
+            <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold mb-3 sm:mb-4 text-white">
               {title}
             </h2>
-            <p className="text-base md:text-lg text-neutral-300 mb-8 max-w-full px-4 md:px-0">
+            <p className="text-sm sm:text-base md:text-lg text-neutral-300 mb-6 sm:mb-8 max-w-full px-2 sm:px-4 md:px-0">
               {description}
             </p>
           </div>
 
           {/* Image Section */}
-          <div className="relative w-full md:w-1/2 h-64 md:h-[300px] overflow-hidden rounded-xl flex items-center justify-center">
-            <img
+          <div className="relative w-full md:w-1/2 h-48 sm:h-64 md:h-[500px] overflow-hidden rounded-xl flex items-center justify-center">
+            <Image
+              fill
               src={imageUrl}
               alt={title}
               className="object-contain w-full h-full"
-              style={{ objectPosition: 'center center' }}
+              style={{ objectPosition: "center center" }}
               loading="lazy"
               onError={(e) => {
                 console.warn(`Failed to load image: ${imageUrl}`);
                 const target = e.target as HTMLImageElement;
                 if (target) {
-                  target.style.display = 'none';
+                  target.style.display = "none";
                 }
               }}
             />
@@ -95,8 +106,8 @@ const Card = ({ title, description, imageUrl, blobUrl, imagePosition, cardBackgr
                 className="absolute inset-0 opacity-50 mix-blend-overlay"
                 style={{
                   backgroundImage: `url(${blobUrl})`,
-                  backgroundSize: 'cover',
-                  backgroundPosition: 'center',
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
                 }}
               />
             )}
@@ -106,6 +117,7 @@ const Card = ({ title, description, imageUrl, blobUrl, imagePosition, cardBackgr
     </motion.div>
   );
 };
+
 
 const InteractiveCards = () => {
   const sectionRef = useRef<HTMLElement>(null);
@@ -304,70 +316,75 @@ const InteractiveCards = () => {
     };
   }, [prefersReducedMotion, isAnimationsEnabled]);
 
-  return (
-    <section 
-      ref={sectionRef} 
-      className="w-full min-h-screen flex flex-col items-center justify-center py-4 md:py-8 relative z-10 overflow-hidden"
-      style={{ backgroundColor: '#251F1E' }}
-    >
-      <div className="w-full relative z-20 min-h-[1200px]">
-        {/* Top Marquee */}
-        <div className="absolute -top-2 md:-top-4 left-0 w-full overflow-hidden whitespace-nowrap font-extrabold text-neutral-700 pointer-events-none">
-          <div 
-            ref={(el) => { marqueeRefs.current[0] = el; }}
-            className="text-[12vw]  sm:text-[8vw] md:text-[7vw] lg:text-[6vw] xl:text-[5.5vw] 2xl:text-[7vw] font-extrabold text-neutral-700 whitespace-nowrap inline-block will-change-transform"
-          >
-            FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE |
-          </div>
-        </div>
-
-        <div className="relative  w-full h-full flex items-center justify-center">
-          <div className="relative  w-full h-full">
-            {cards.map((card, i) => (
-              <div
-                key={i}
-                ref={(el) => {
-                  cardRefs.current[i] = el;
-                }}
-                className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 transform-gpu origin-center will-change-transform"
-                style={{
-                  zIndex: 30 + i,
-                }}
-              >
-                <Card 
-                  {...card} 
-                  cardBackgroundColor={CARD_BACKGROUND_COLOR} 
-                  cardBorderColor={CARD_BORDER_COLOR} 
-                />
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Scrollbar - hidden on mobile */}
+return (
+  <section
+    ref={sectionRef}
+    className="w-full min-h-screen flex flex-col items-center justify-center py-4 md:py-8 relative z-10 overflow-hidden"
+    style={{ backgroundColor: "#251F1E" }}
+  >
+    <div className="w-full relative z-20 min-h-[60vh] md:min-h-[1200px]">
+      {/* Top Marquee */}
+      <div className="absolute top-0 md:-top-4 left-0 w-full overflow-hidden whitespace-nowrap font-extrabold text-neutral-700 pointer-events-none">
         <div
-          ref={scrollbarRef}
-          className="hidden md:flex absolute right-4 md:right-20 top-1/2 -translate-y-1/2 w-1 bg-neutral-700 rounded-full items-center justify-center"
-          style={{ height: SCROLLBAR_HEIGHT_PX }}
+          ref={(el) => {
+            marqueeRefs.current[0] = el;
+          }}
+          className="text-[14vw] sm:text-[10vw] md:text-[7vw] lg:text-[6vw] xl:text-[5.5vw] 2xl:text-[7vw] font-extrabold text-neutral-700 whitespace-nowrap inline-block will-change-transform"
         >
-          <div 
-            id="scroll-indicator" 
-            className="absolute h-6 w-6 bg-yellow-400 rounded-full will-change-transform"
-          ></div>
-        </div>
-
-        {/* Bottom Marquee */}
-        <div className="absolute -bottom-2 md:-bottom-4 left-0 w-full overflow-hidden whitespace-nowrap font-extrabold text-neutral-700 pointer-events-none">
-          <div 
-            ref={(el) => { marqueeRefs.current[1] = el; }}
-            className="text-[12vw] sm:text-[8vw] md:text-[7vw] lg:text-[6vw] xl:text-[5.5vw] 2xl:text-[7vw] font-extrabold text-neutral-700 whitespace-nowrap inline-block will-change-transform"
-          >
-            FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE |
-          </div>
+          FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE |
         </div>
       </div>
-    </section>
-  );
+
+      <div className="relative w-full h-full flex items-center justify-center">
+        <div className="relative w-full h-full">
+          {cards.map((card, i) => (
+            <div
+              key={i}
+              ref={(el) => {
+                cardRefs.current[i] = el;
+              }}
+              className="absolute left-1/2 top-[80%] md:top-1/2 -translate-x-1/2 -translate-y-1/2 transform-gpu origin-center will-change-transform"
+              style={{
+                zIndex: 30 + i,
+              }}
+            >
+              <Card
+                {...card}
+                cardBackgroundColor={CARD_BACKGROUND_COLOR}
+                cardBorderColor={CARD_BORDER_COLOR}
+              />
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Scrollbar - hidden on mobile */}
+      <div
+        ref={scrollbarRef}
+        className="hidden md:flex absolute right-4 md:right-20 top-1/2 -translate-y-1/2 w-1 bg-neutral-700 rounded-full items-center justify-center"
+        style={{ height: SCROLLBAR_HEIGHT_PX }}
+      >
+        <div
+          id="scroll-indicator"
+          className="absolute h-6 w-6 bg-yellow-400 rounded-full will-change-transform"
+        ></div>
+      </div>
+
+      {/* Bottom Marquee */}
+      <div className="absolute -bottom-[20vh] md:-bottom-4 left-0 w-full overflow-hidden whitespace-nowrap font-extrabold text-neutral-700 pointer-events-none">
+        <div
+          ref={(el) => {
+            marqueeRefs.current[1] = el;
+          }}
+          className="text-[14vw] sm:text-[10vw] md:text-[7vw] lg:text-[6vw] xl:text-[5.5vw] 2xl:text-[7vw] font-extrabold text-neutral-700 whitespace-nowrap inline-block will-change-transform"
+        >
+          FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE | FIND YOUR VIBE |
+        </div>
+      </div>
+    </div>
+  </section>
+);
+
 };
 
 export default InteractiveCards;

@@ -165,34 +165,41 @@ const ProductGrid = ({ occasionData }: ProductGridProps) => {
 
 const ProductCard = ({ product }: { product: Product }) => {
     return (
-        <a
-            href={product.link}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="cursor-pointer group"
-        >
-            <div className="relative overflow-hidden bg-white">
-                <img
-                    src={product.image}
-                    alt={product.title}
-                    className="w-full h-[374px] object-contain transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className='h-[374px] absolute z-10 top-0 left-0 w-full'>
-                    <div className='h-1/2'></div>
-                    <div className='bg-gradient-to-b from-transparent to-black/90 h-1/2'></div>
-                </div>
-            </div>
-            
-            <div className="mt-4">
-                <h3 className="text-lg font-medium text-white mb-2 line-clamp-2">
-                    {product.title}
-                </h3>
-                <p className="text-2xl font-bold text-white">
-                    {product.price}
-                </p>
-            </div>
-        </a>
+      <a
+        href={product.link}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="cursor-pointer group bg-white relative text-gray-900 overflow-hidden rounded-2xl  shadow-lg hover:shadow-xl transition-all hover:scale-105 duration-200 flex flex-col h-full"
+      >
+        {/* Product Image with Gradient Overlay */}
+        <div className="relative overflow-hidden rounded-xl">
+          <img
+            src={product.image}
+            alt={product.title}
+            className="w-full h-[374px] object-contain transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+          />
+          <div className="absolute inset-0 z-10">
+            <div className="h-1/2"></div>
+            <div className="h-1/2 bg-gradient-to-b from-transparent to-black/90"></div>
+          </div>
+        </div>
+  
+        {/* Bottom Overlay Content */}
+        <div className="absolute z-10 px-3 bottom-0 left-0 right-0 flex flex-col justify-end">
+          <h3 className="font-extrabold text-white border-b-2 line-clamp-2 min-h-[1rem] mb-2 text-sm">
+            {product.title}
+          </h3>
+          <div className="flex justify-between items-center">
+            <p className="text-white font-bold text-lg mb-3">{product.price}</p>
+            <span className="text-white rounded-lg py-2 font-medium transition-colors text-sm">
+              View on Amazon
+            </span>
+          </div>
+        </div>
+      </a>
     );
-};
+  };
+  
 
 export default ProductGrid;

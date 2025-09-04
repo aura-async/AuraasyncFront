@@ -70,7 +70,7 @@
   height: 100%;
   width: 400%;
   will-change: transform;
-  animation: flowing-marquee 25s linear infinite;
+  animation: flowing-marquee 55s linear infinite;
 }
 
 .flowing-marquee span {

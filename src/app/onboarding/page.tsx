@@ -378,7 +378,7 @@ export default function Onboarding() {
     return (
       <>
         {/* Desktop Progress Bar */}
-        <div className="hidden md:flex absolute items-center justify-between w-[40vw] mt-6 top-5 left-1/2 -translate-x-1/2 z-50">
+        <div className="hidden md:flex sticky top-0 items-center justify-between w-full max-w-4xl mx-auto pt-6 z-40 px-4">
           {STEP_ORDER.map((step, index) => {
             const isActive = index === currentIndex;
             const isCompleted = index < currentIndex;
@@ -423,7 +423,7 @@ export default function Onboarding() {
         </div>
 
         {/* Mobile Progress Bar - Fixed positioning */}
-        <div className="md:hidden flex items-center justify-between w-full px-4 z-50 absolute top-4 left-0 right-0">
+        <div className="md:hidden flex items-center justify-between w-full px-4 py-2 z-40 sticky top-0 left-0 right-0 bg-transparent">
           {STEP_ORDER.map((step, index) => {
             const isActive = index === currentIndex;
             const isCompleted = index < currentIndex;
@@ -445,11 +445,11 @@ export default function Onboarding() {
                   }
                 `}
                 >
-                  {isCompleted ? <Check size={14} /> : index + 1}
+                  {isCompleted ? <Check size={8} /> : index + 1}
                 </div>
 
                 {/* Step Label */}
-                <div className="text-xs text-gray-200 text-center max-w-[80px]">
+                <div className="text-xs text-gray-200 text-center max-w-[90px]">
                   {STEP_LABELS[step]}
                 </div>
 
@@ -2971,18 +2971,12 @@ export default function Onboarding() {
             <div className="w-full flex flex-col md:flex-row gap-6">
               {/* LEFT PANEL: IMAGE / CONTENT */}
               <div className="md:w-[65%] w-full flex items-center justify-center h-[60vh] md:h-[80vh] relative rounded-lg overflow-hidden">
-                {!hasStarted ? (
-                  <Image
-                    src={PersonalityPhoto}
-                    alt="Personality Analysis"
-                    fill
-                    className="object-contain"
-                  />
-                ) : (
-                  <div className="w-full h-full flex items-center justify-center">
-                    <PersonalityAnalysisWidget onComplete={handleNext} />
-                  </div>
-                )}
+                <Image
+                  src={PersonalityPhoto}
+                  alt="Personality Analysis"
+                  fill
+                  className="object-contain"
+                />
               </div>
 
               {/* RIGHT PANEL: CONTROLS */}
@@ -3056,6 +3050,18 @@ export default function Onboarding() {
               </div>
             </div>
           </div>
+          {hasStarted && (
+            <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center ">
+              <div className="relative w-full h-full md:w-[100vw] md:h-[100vh] bg-[#251F1E] rounded-none md:rounded-2xl p-4 md:p-8 overflow-auto">
+             
+                <div className="w-full h-full flex items-center justify-center">
+                  <div className="w-full">
+                    <PersonalityAnalysisWidget onComplete={handleNext} />
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </motion.div>
 
         {/* Mobile */}

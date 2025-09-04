@@ -84,7 +84,7 @@ const OutfitRecommendations = () => {
             </div>
 
             {/* Column 2: One tall featured card */}
-            <div className="flex w-full h-full w-full">
+            <div className="flex w-full h-full ">
               <RecommendationCard {...recommendations[1]} />
             </div>
 
@@ -115,7 +115,7 @@ const OutfitRecommendations = () => {
           {/* Extra Ethnic Wear Block - Full Width */}
           <div className="mt-6">
             <div
-              className="relative group overflow-hidden border border-white/10 bg-black/10 shadow-lg cursor-pointer h-[300px] md:h-[400px]"
+              className="relative group overflow-hidden border border-white/10 bg-black/10 shadow-lg cursor-pointer h-[300px] md:h-[630px]"
               onClick={() =>
                 router.push("/female/outfit-recommendation/womens-ethnic-wear")
               }
@@ -164,7 +164,7 @@ const RecommendationCard = ({ image, label, caption, featured, slug }) => {
   return (
     <div
       className={`relative group overflow-hidden border border-white/10 bg-black/10 shadow-lg cursor-pointer ${
-        featured ? "md:h-[624px]  h-[600px] w-full" : "h-[300px] w-full"
+        featured ? "md:h-[864px]  h-[600px] w-full" : "h-[420px] w-full"
       }`}
       onClick={handleClick}
     >

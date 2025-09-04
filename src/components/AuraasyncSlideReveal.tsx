@@ -192,13 +192,13 @@ export default function AuraasyncSlideReveal() {
           {/* Social Icons */}
           <div className="absolute bottom-6 right-6 z-50 flex flex-col space-y-4 text-white text-xl">
             <a href="https://instagram.com" target="_blank" rel="noopener noreferrer" className="hover:text-pink-500"><FaInstagram /></a>
-            <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500"><FaFacebookF /></a>
-            <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-sky-400"><FaTwitter /></a>
+            {/* <a href="https://facebook.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-500"><FaFacebookF /></a> */}
+            {/* <a href="https://twitter.com" target="_blank" rel="noopener noreferrer" className="hover:text-sky-400"><FaTwitter /></a> */}
           <a href="https://linkedin.com" target="_blank" rel="noopener noreferrer" className="hover:text-blue-400" > <FaLinkedinIn />
   </a>
-  <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="hover:text-red-500" >
+  {/* <a href="https://youtube.com" target="_blank" rel="noopener noreferrer" className="hover:text-red-500" >
     <FaYoutube />
-  </a>
+  </a> */}
           </div>
         </div>
       )}

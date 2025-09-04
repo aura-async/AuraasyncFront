@@ -130,7 +130,7 @@ const RecommendationCard = ({ image, label, caption, featured, onClick }) => {
     <div
       onClick={onClick}
       className={`relative group overflow-hidden border border-white/10 bg-black/10 shadow-lg cursor-pointer ${
-        featured ? "md:h-[624px]  h-[600px] w-full" : "h-[300px] w-full"
+        featured ? "md:h-[884px]  h-[600px] w-full" : "h-[430px] w-full"
       }`}
     >
       <Image

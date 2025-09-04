@@ -60,9 +60,8 @@ const StickyHeader = () => {
             {/* Auth Links */}
             <div
             onClick={()=>router.push('/onboarding')}
-             className="flex items-center space-x-0.05 text-white font-medium text-lg">
-              <button className="w-[104px] h-[38px] flex items-center justify-center hover:text-gray-300 transition-colors duration-200">Login</button>
-              <button className="w-[104px] h-[38px] flex items-center justify-center hover:text-gray-300 transition-colors duration-200">Sign-up</button>
+             className="flex items-center space-x-0.05 text-white font-medium text-lg mr-10">
+              <button className="w-[104px] h-[38px] flex items-center justify-center hover:text-gray-300 transition-colors duration-200">Login/Signup</button>
             </div>
           </div>
         </motion.div>
