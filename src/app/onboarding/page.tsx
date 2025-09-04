@@ -1292,7 +1292,7 @@ export default function Onboarding() {
           <div className="mb-6 flex flex-col items-center">
             <video
               ref={videoRef}
-              className="w-full md:max-w-md rounded-lg border-2 border-gray-700 mb-2 shadow-lg"
+              className="w-full h-[70vh] md:max-w-md md:h-auto rounded-lg border-2 border-gray-700 mb-2 shadow-lg object-cover"
               autoPlay
               playsInline
             />
@@ -2564,7 +2564,7 @@ export default function Onboarding() {
           <div className="mb-6 flex flex-col items-center">
             <video
               ref={videoRef}
-              className="w-full md:max-w-md rounded-lg border-2 border-gray-700 mb-2 shadow-lg"
+              className="w-full h-[70vh] md:max-w-md md:h-auto rounded-lg border-2 border-gray-700 mb-2 shadow-lg object-cover"
               autoPlay
               playsInline
             />
