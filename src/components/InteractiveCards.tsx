@@ -322,7 +322,7 @@ return (
     className="w-full min-h-screen flex flex-col items-center justify-center py-4 md:py-8 relative z-10 overflow-hidden"
     style={{ backgroundColor: "#251F1E" }}
   >
-    <div className="w-full relative z-20 min-h-[60vh] md:min-h-[1200px]">
+    <div className="w-full relative z-20 min-h-[85vh] md:min-h-[1200px]">
       {/* Top Marquee */}
       <div className="absolute top-0 md:-top-4 left-0 w-full overflow-hidden whitespace-nowrap font-extrabold text-neutral-700 pointer-events-none">
         <div
@@ -343,7 +343,7 @@ return (
               ref={(el) => {
                 cardRefs.current[i] = el;
               }}
-              className="absolute left-1/2 top-[80%] md:top-1/2 -translate-x-1/2 -translate-y-1/2 transform-gpu origin-center will-change-transform"
+              className="absolute left-1/2 top-[50%] md:top-1/2 -translate-x-1/2 -translate-y-1/2 transform-gpu origin-center will-change-transform"
               style={{
                 zIndex: 30 + i,
               }}
@@ -371,7 +371,7 @@ return (
       </div>
 
       {/* Bottom Marquee */}
-      <div className="absolute -bottom-[20vh] md:-bottom-4 left-0 w-full overflow-hidden whitespace-nowrap font-extrabold text-neutral-700 pointer-events-none">
+      <div className="absolute bottom-0  md:-bottom-4 left-0 w-full overflow-hidden whitespace-nowrap font-extrabold text-neutral-700 pointer-events-none">
         <div
           ref={(el) => {
             marqueeRefs.current[1] = el;

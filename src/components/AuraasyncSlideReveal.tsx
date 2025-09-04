@@ -97,7 +97,7 @@ export default function AuraasyncSlideReveal() {
         {loading && (
           <motion.div
             key="loader"
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white"
+            className="fixed inset-0 z-50 px-22 md:px-0 flex flex-col items-center justify-center bg-white"
             exit={{ opacity: 0, transition: { duration: 0.5 } }}
           >
             <motion.h1
@@ -113,10 +113,10 @@ export default function AuraasyncSlideReveal() {
               initial={{ width: 0, opacity: 0 }}
               animate={{ width: 380, opacity: 1 }}
               transition={{ duration: 0.5, delay: 0.5 }}
-              className="relative h-2 bg-gray-300 rounded-full overflow-hidden"
+              className="relative h-1 md:h-2 bg-gray-300  rounded-full overflow-hidden"
             >
               <div
-                className="h-full transition-all ease-linear"
+                className="h-full  transition-all ease-linear"
                 style={{ 
                   width: `${progress}%`,
                   backgroundColor: '#525252'
