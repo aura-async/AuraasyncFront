@@ -30,15 +30,15 @@ import female from "@/app/assets/woman-outline.png";
 import mobilecam from '@/app/assets/MobileCamera.png'
 
 // Body Type Images - Using placeholder for now
-import HourglassImage from "@/app/assets/bodytype/hourglass.png";
-import RectangleImage from "@/app/assets/bodytype/rectangle.png";
-import InvertedTriangleImage from "@/app/assets/bodytype/inverted_triangle.png";
-import AppleImage from "@/app/assets/bodytype/apple.png";
-import PearImage from "@/app/assets/bodytype/pear.png";
-import MesomorphImage from "@/app/assets/bodytype/mesomorph.png";
-import EctomorphImage from "@/app/assets/bodytype/ectomorph.png";
-import TrapezoidImage from "@/app/assets/bodytype/trapezoid.png";
-import EndomorphImage from "@/app/assets/bodytype/endomorph.png";
+import HourglassImage from "@/app/assets/Bodytype/hourglass.png";
+import RectangleImage from "@/app/assets/Bodytype/rectangle.png";
+import InvertedTriangleImage from "@/app/assets/Bodytype/inverted_triangle.png";
+import AppleImage from "@/app/assets/Bodytype/apple.png";
+import PearImage from "@/app/assets/Bodytype/pear.png";
+import MesomorphImage from "@/app/assets/Bodytype/mesomorph.png";
+import EctomorphImage from "@/app/assets/Bodytype/ectomorph.png";
+import TrapezoidImage from "@/app/assets/Bodytype/trapezoid.png";
+import EndomorphImage from "@/app/assets/Bodytype/endomorph.png";
 
 
 // Onboarding steps
