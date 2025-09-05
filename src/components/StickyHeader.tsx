@@ -54,7 +54,7 @@ const StickyHeader = () => {
           <div className="flex justify-between items-center px-6 py-4 pt-8">
             {/* Logo */}
             <div className="flex items-center space-x-2">
-              <span className="text-white text-4xl font-semibold">Auraasync</span>
+              <span className="text-white text-[2rem] font-semibold">Auraasync</span>
             </div>
 
             {/* Auth Links */}

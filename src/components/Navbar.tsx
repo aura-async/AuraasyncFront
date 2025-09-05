@@ -115,7 +115,7 @@ const Navbar = ({
   return (
     // ✅ Always-mounted wrapper
     <div className="fixed top-0 left-0 w-full pointer-events-none z-[9999]">
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {(isVisible || landingComplete) && (
           <motion.div
             key="navbar"
@@ -172,7 +172,7 @@ const Navbar = ({
             </div>
           </motion.div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
     </div>
   );
 };

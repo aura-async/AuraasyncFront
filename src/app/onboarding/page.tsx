@@ -30,15 +30,16 @@ import female from "@/app/assets/woman-outline.png";
 import mobilecam from '@/app/assets/MobileCamera.png'
 
 // Body Type Images - Using placeholder for now
-const HourglassImage = "/placeholder.png";
-const RectangleImage = "/placeholder.png";
-const InvertedTriangleImage = "/placeholder.png";
-const AppleImage = "/placeholder.png";
-const PearImage = "/placeholder.png";
-const MesomorphImage = "/placeholder.png";
-const EctomorphImage = "/placeholder.png";
-const TrapezoidImage = "/placeholder.png";
-const EndomorphImage = "/placeholder.png";
+import HourglassImage from "@/app/assets/bodytype/hourglass.png";
+import RectangleImage from "@/app/assets/bodytype/rectangle.png";
+import InvertedTriangleImage from "@/app/assets/bodytype/inverted_triangle.png";
+import AppleImage from "@/app/assets/bodytype/apple.png";
+import PearImage from "@/app/assets/bodytype/pear.png";
+import MesomorphImage from "@/app/assets/bodytype/mesomorph.png";
+import EctomorphImage from "@/app/assets/bodytype/ectomorph.png";
+import TrapezoidImage from "@/app/assets/bodytype/trapezoid.png";
+import EndomorphImage from "@/app/assets/bodytype/endomorph.png";
+
 
 // Onboarding steps
 const STEPS = {
