@@ -21,7 +21,7 @@ export default function AuraasyncSlideReveal() {
     const animateBar = (ts) => {
       if (!start) start = ts;
       const elapsed = ts - (start || ts);
-      const percent = Math.min((elapsed / duration) * 100, 100);
+      const percent = Math.min((elapsed / duration) * 100, 200);
       setProgress(percent);
 
       if (percent < 100) {
@@ -97,15 +97,15 @@ export default function AuraasyncSlideReveal() {
         {loading && (
           <motion.div
             key="loader"
-            className="fixed inset-0 z-50 px-22 md:px-0 flex flex-col items-center justify-center bg-white"
-            exit={{ opacity: 0, transition: { duration: 0.5 } }}
+            className="fixed inset-0 z-50 px-22 md:px-0 flex flex-col items-center justify-center bg-[#2a2a33]"
+            exit={{ opacity: 0, transition: { duration: 0.9 } }}
           >
             <motion.h1
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6 }}
-              className="text-6xl md:text-8xl lg:text-9xl font-extrabold mb-12"
-              style={{ color: '#B2B2B2' }}
+              className="text-6xl popin md:text-8xl lg:text-9xl font-extrabold mb-12"
+              style={{ color: '#Af956a' }}
             >
               Auraasync
             </motion.h1>
@@ -119,7 +119,7 @@ export default function AuraasyncSlideReveal() {
                 className="h-full  transition-all ease-linear"
                 style={{ 
                   width: `${progress}%`,
-                  backgroundColor: '#525252'
+                  backgroundColor: '#af956a'
                 }}
               />
             </motion.div>
@@ -136,7 +136,7 @@ export default function AuraasyncSlideReveal() {
           onAnimationComplete={() => setCircleDone(true)}
           className="fixed inset-0 flex items-center justify-center z-40"
         >
-          <div className="w-40 h-40 rounded-full" style={{ backgroundColor: '#525252' }} />
+          <div className="w-40 h-40 rounded-full" style={{ backgroundColor: '#251f1e' }} />
         </motion.div>
       )}
 

@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Montserrat, Playfair_Display } from "next/font/google";
+import { Montserrat, Playfair_Display, Poppins } from "next/font/google";
 import "./globals.css";
 import ConditionalFooter from '../components/ConditionalFooter';
 import FlowController from '../components/FlowController';
@@ -15,6 +15,13 @@ const playfair = Playfair_Display({
   variable: "--font-playfair",
   display: "swap",
 });
+
+const popin=Poppins({
+  subsets: ["latin"],
+  variable: "--font-popins",
+  display: "swap",
+  weight: "700"
+})
 
 export const metadata: Metadata = {
         title: "Auraasync - AI-Powered Fashion Analysis & Style Recommendations",
@@ -97,7 +104,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={`${montserrat.variable} ${playfair.variable}`}>
+    <html lang="en" className={`${montserrat.variable} ${popin.variable} ${playfair.variable}`}>
       <body className="bg-black text-white flex flex-col min-h-screen">
         <FlowController>
           <div className="flex-grow">

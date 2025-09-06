@@ -92,8 +92,7 @@ const MenuItem: React.FC<MenuItemProps> = ({ link, text, image }) => {
       <React.Fragment key={idx}>
         <span>{text}</span>
       {imageUrl && (
-  <div className="flowing-marquee__img h-[100px] w-[600px] relative overflow-hidden rounded-xl">
-    <Image
+<div className="flowing-marquee__img h-[100px] w-full max-w-[600px] relative overflow-hidden rounded-xl">    <Image
       src={imageUrl}
       alt={text}
       fill   // fills parent container

@@ -15,6 +15,11 @@
     --background-end-rgb: 0, 0, 0;
   }
 }
+.popin {
+  font-family: 'Poppins', Arial, Helvetica, sans-serif;
+}
+
+/* Ensure Poppins font is loaded via next/font/google in layout.tsx */
 
 body {
   color: rgb(var(--foreground-rgb));

@@ -1610,11 +1610,18 @@ export default function Onboarding() {
                     {/* Content Section - Now Below */}
                     <div className="w-full flex flex-col space-y-4">
                       <button
+                        onClick={handleMobileCaptureClick}
+                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
+                      >
+                        Capture from Web Camera
+                      </button>
+                      <button
                         onClick={() => setShowFaceInstructions(true)}
                         className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555555] transition-all"
                       >
                         Instructions
                       </button>
+
                       {/* Analysis Status */}
                       <div className="w-full h-auto bg-[#444141] p-4 rounded-3xl backdrop-blur-lg text-white">
                         <h3 className="text-lg font-bold mb-3">
@@ -1657,12 +1664,7 @@ export default function Onboarding() {
                           Upload +
                         </button>
                       </div>
-                      <button
-                        onClick={handleMobileCaptureClick}
-                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
-                      >
-                        Capture from Web Camera
-                      </button>
+                      
                       <div className=" justify-between  ">
                         {!(singleMode && singleTarget === 'face') && (
                           <button
@@ -2503,7 +2505,7 @@ export default function Onboarding() {
                 </span>
 
                 {/* Description */}
-                <span className="text-xs text-gray-300 text-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                <span className="text-xs text-gray-300 text-center ">
                   {shape.description}
                 </span>
               </button>
@@ -2729,9 +2731,9 @@ export default function Onboarding() {
                 {/* Manual Measurements */}
                 <button
                   onClick={handleManualMeasurements}
-                  className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                  className="w-full bg-white/10 border border-white/40 text-white py-3 rounded-lg font-semibold hover:bg-white/20 transition-colors"
                 >
-                  📏 Insert Measurements Manually
+                   Insert Measurements Manually
                 </button>
 
                 {/* Navigation */}
