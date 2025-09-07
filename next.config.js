@@ -2,7 +2,7 @@
 const nextConfig = {
   // Enable static optimization
   output: 'standalone',
-  
+
   // Image optimization
   images: {
     domains: ['auraasync.com'],
@@ -32,6 +32,11 @@ const nextConfig = {
           {
             key: 'X-DNS-Prefetch-Control',
             value: 'on',
+          },
+          {
+            // 👇 This fixes the Firebase popup issue
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin-allow-popups',
           },
         ],
       },
@@ -81,6 +86,6 @@ const nextConfig = {
   },
 
   reactStrictMode: true,
-}
+};
 
-module.exports = nextConfig 
+module.exports = nextConfig;
