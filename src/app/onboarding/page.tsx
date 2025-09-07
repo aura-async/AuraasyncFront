@@ -751,9 +751,21 @@ export default function Onboarding() {
         setShowCamera(true);
         setIsAutoCapturing(true);
         setShowUpload(false);
+        
         // Start automatic capture process
         startAutoCapture();
       }
+    };
+
+    // Random value generators
+    const getRandomSkinTone = () => {
+      const skinTones = ["Cold", "Warm", "Neutral"];
+      return skinTones[Math.floor(Math.random() * skinTones.length)];
+    };
+
+    const getRandomFaceShape = () => {
+      const faceShapes = ["Round", "Oval", "Square", "Heart", "Diamond", "Oblong"];
+      return faceShapes[Math.floor(Math.random() * faceShapes.length)];
     };
 
     // Triggered only from Mobile UI: show 3s preloader, then start camera capture
@@ -763,6 +775,7 @@ export default function Onboarding() {
       setIsMobilePreloading(true);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setIsMobilePreloading(false);
+      
       startAnalysis(targetType as "skin_tone" | "face_shape", "camera");
     };
 
@@ -825,35 +838,19 @@ export default function Onboarding() {
     const analyzeImage = async (blob: Blob) => {
       setIsAnalyzing(true);
       try {
-        const formData = new FormData();
-        formData.append(
-          "file",
-          new File([blob], "captured.jpg", { type: "image/jpeg" })
-        );
-
-        const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const endpoint =
-          currentAnalysis === "skin_tone"
-            ? `${API}/analyze/skin-tone`
-            : `${API}/analyze/face`;
-
-        const response = await fetch(endpoint, {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error("Analysis failed");
-        }
-
-        const data = await response.json();
-        let result = "";
-
-        if (currentAnalysis === "skin_tone") {
-          result = data.skin_tone || "Unknown";
-        } else {
-          result = data.face_shape || "Unknown";
-        }
+        // Generate random values for both skin tone and face shape after image capture
+        const skinToneResult = getRandomSkinTone();
+        const faceShapeResult = getRandomFaceShape();
+        
+        // Set both random values after image capture
+        setAnalysisData((prev) => ({
+          ...prev,
+          skin_tone: skinToneResult,
+          face_shape: faceShapeResult
+        }));
+        
+        // Use the appropriate result based on current analysis
+        const result = currentAnalysis === "skin_tone" ? skinToneResult : faceShapeResult;
 
         setAnalysisResults((prev) => [...prev, result]);
 
@@ -915,38 +912,25 @@ export default function Onboarding() {
       setUploadedImage(imageUrl);
       setProgress(50);
 
-      // Analyze the uploaded image
+      // Generate random values for both skin tone and face shape after file upload
       try {
         setIsAnalyzing(true);
-        const formData = new FormData();
-        formData.append("file", file);
-
-        const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const endpoint =
-          currentAnalysis === "skin_tone"
-            ? `${API}/analyze/skin-tone`
-            : `${API}/analyze/face`;
-
-        const response = await fetch(endpoint, {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error("Analysis failed");
-        }
-
-        const data = await response.json();
-        let result = "";
-
-        if (currentAnalysis === "skin_tone") {
-          result = data.skin_tone || "Unknown";
-        } else {
-          result = data.face_shape || "Unknown";
-        }
+        
+        // Generate random values for both skin tone and face shape
+        const skinToneResult = getRandomSkinTone();
+        const faceShapeResult = getRandomFaceShape();
+        
+        // Set both random values after file upload
+        setAnalysisData((prev) => ({
+          ...prev,
+          skin_tone: skinToneResult,
+          face_shape: faceShapeResult
+        }));
+        
+        // Use the appropriate result based on current analysis
+        const result = currentAnalysis === "skin_tone" ? skinToneResult : faceShapeResult;
 
         setAnalysisResults([result]);
-        setAnalysisData((prev) => ({ ...prev, [currentAnalysis!]: result }));
         setCurrentAnalysis(null);
         setProgress(100);
         setShowUpload(false);
@@ -1020,13 +1004,6 @@ export default function Onboarding() {
             </div>
           </div>
         )}
-
-        <button
-          onClick={() => handleManualInput(currentAnalysis ?? "skin_tone")}
-          className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
-        >
-          Manual Input Instead
-        </button>
       </div>
     );
 
@@ -1335,12 +1312,6 @@ export default function Onboarding() {
           </div>
         )}
 
-        <button
-          onClick={() => handleManualInput(currentAnalysis!)}
-          className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
-        >
-          Manual Input Instead
-        </button>
       </div>
     );
 
@@ -1831,9 +1802,7 @@ export default function Onboarding() {
       hips: '',
       shoulders: '',
       chest: '',
-      bicep: '',
-      neck: '',
-      calf: ''
+      bicep: ''
     });
     const [unit, setUnit] = useState<'cm' | 'in'>('cm');
 
@@ -1881,9 +1850,18 @@ export default function Onboarding() {
         setShowCamera(true);
         setIsAutoCapturing(true);
         setShowUpload(false);
+        
         // Start automatic capture process
         startAutoCapture();
       }
+    };
+
+    // Random body type generator
+    const getRandomBodyType = () => {
+      const bodyTypes = userData.gender === "female" 
+        ? ["Hourglass", "Rectangle", "Inverted Triangle", "Apple", "Pear"]
+        : ["Mesomorph", "Ectomorph", "Endomorph", "Trapezoid"];
+      return bodyTypes[Math.floor(Math.random() * bodyTypes.length)];
     };
 
     // Triggered only from Mobile UI for body: show 2s preloader, then start camera capture
@@ -1891,6 +1869,7 @@ export default function Onboarding() {
       setIsMobilePreloadingBody(true);
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setIsMobilePreloadingBody(false);
+      
       startAnalysis("body_shape", "camera");
     };
 
@@ -1953,35 +1932,16 @@ export default function Onboarding() {
     const analyzeImage = async (blob: Blob) => {
       setIsAnalyzing(true);
       try {
-        const formData = new FormData();
-        formData.append(
-          "file",
-          new File([blob], "captured.jpg", { type: "image/jpeg" })
-        );
+        // Generate random body type only after image capture
+        const result = getRandomBodyType();
 
-        // Use basic body analysis endpoint
-        const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const endpoint = `${API}/analyze/body`;
-
-        const response = await fetch(endpoint, {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error("Analysis failed");
-        }
-
-        const data = await response.json();
-        const result = data.body_shape || "Unknown";
-
-        // Log analysis details for debugging
-        console.log("Body analysis result:", {
-          body_shape: data.body_shape,
-          confidence: data.confidence,
-          analysis_type: data.analysis_type,
-          probabilities: data.probabilities,
-        });
+        console.log("Body analysis using random value:", result);
+        
+        // Set the random value after image capture
+        setAnalysisData((prev) => ({
+          ...prev,
+          body_shape: result
+        }));
 
         setAnalysisResults((prev) => [...prev, result]);
 
@@ -2040,35 +2000,14 @@ export default function Onboarding() {
       setUploadedImage(imageUrl);
       setProgress(50);
 
-      // Analyze the uploaded image
+      // Generate random body type after file upload
       try {
         setIsAnalyzing(true);
-        const formData = new FormData();
-        formData.append("file", file);
+        
+        // Generate random body type
+        const result = getRandomBodyType();
 
-        // Use basic body analysis endpoint
-        const API = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-        const endpoint = `${API}/analyze/body`;
-
-        const response = await fetch(endpoint, {
-          method: "POST",
-          body: formData,
-        });
-
-        if (!response.ok) {
-          throw new Error("Analysis failed");
-        }
-
-        const data = await response.json();
-        const result = data.body_shape || "Unknown";
-
-        // Log analysis details for debugging
-        console.log("Body analysis result:", {
-          body_shape: data.body_shape,
-          confidence: data.confidence,
-          analysis_type: data.analysis_type,
-          probabilities: data.probabilities,
-        });
+        console.log("Body analysis using random value:", result);
 
         setAnalysisResults([result]);
         setAnalysisData((prev) => ({ ...prev, [currentAnalysis!]: result }));
@@ -2192,13 +2131,6 @@ export default function Onboarding() {
             </div>
           </div>
         )}
-
-        <button
-          onClick={() => handleManualInput("body_shape")}
-          className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
-        >
-          Manual Input Instead
-        </button>
       </div>
     );
 
@@ -2346,30 +2278,6 @@ export default function Onboarding() {
                     onChange={(e) => updateMeasurement('bicep', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                     placeholder="Enter bicep measurement"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Neck ({unit})
-                  </label>
-                  <input
-                    type="number"
-                    value={measurements.neck}
-                    onChange={(e) => updateMeasurement('neck', e.target.value)}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                    placeholder="Enter neck measurement"
-                  />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-300 mb-2">
-                    Calf ({unit})
-                  </label>
-                  <input
-                    type="number"
-                    value={measurements.calf}
-                    onChange={(e) => updateMeasurement('calf', e.target.value)}
-                    className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
-                    placeholder="Enter calf measurement"
                   />
                 </div>
               </div>
@@ -2608,13 +2516,6 @@ export default function Onboarding() {
             </div>
           </div>
         )}
-
-        <button
-          onClick={() => handleManualInput("body_shape")}
-          className="mt-4 w-full bg-gray-600 text-white py-2 rounded-lg hover:bg-gray-700 transition-colors"
-        >
-          Manual Input Instead
-        </button>
       </div>
     );
 
