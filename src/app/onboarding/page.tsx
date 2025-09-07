@@ -1244,7 +1244,7 @@ export default function Onboarding() {
         </div>
 
         <p className="text-sm text-gray-300 mb-4">
-          Progress: {progress}% - {capturedImages.length}/3 images captured
+          Progress: {progress}% - {capturedImages.length} images captured
         </p>
 
         {isAutoCapturing && (
@@ -1311,7 +1311,29 @@ export default function Onboarding() {
             </div>
           </div>
         )}
-
+       <div className="flex justify-center gap-4 mt-8">
+                        <button
+                          onClick={() => setCurrentStep(STEPS.BASIC_INFO)}
+                          className="px-8 py-3 w-full rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
+                        >
+                          Back
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (singleMode && singleTarget === 'skin') {
+                              saveSingleModeAndReturn({ skin_tone: analysisData.skin_tone });
+                            } else if (singleMode && singleTarget === 'face') {
+                              saveSingleModeAndReturn({ face_shape: analysisData.face_shape || null });
+                            } else {
+                              handleNext();
+                            }
+                          }}
+                          disabled={singleMode ? (singleTarget === 'skin' ? !analysisData.skin_tone : !analysisData.face_shape) : !analysisData.skin_tone}
+                          className="px-8 py-3 w-full rounded-lg bg-[white]/10 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-600 hover:to-purple-700 transition-all"
+                        >
+                          Next
+                        </button>
+                      </div>
       </div>
     );
 
