@@ -22,8 +22,6 @@ export const femaleBodyTypes = [
       hips: { min: 90, max: 100 }, // Inferred based on bust/shoulders
       shoulders: { min: 90, max: 100 },
       bicep: { min: 28, max: 32 },
-      neck: { min: 32, max: 35 },
-      calf: { min: 34, max: 38 },
     },
     example: {
       bust: 95,
@@ -31,8 +29,6 @@ export const femaleBodyTypes = [
       hips: 95,
       shoulders: 95,
       bicep: 30,
-      neck: 33.5,
-      calf: 36,
     },
   },
   {
@@ -45,8 +41,6 @@ export const femaleBodyTypes = [
       hips: { min: 95, max: 105 }, // Wider hips than bust
       shoulders: { min: 85, max: 95 },
       bicep: { min: 27, max: 31 },
-      neck: { min: 31, max: 34 },
-      calf: { min: 35, max: 39 },
     },
     example: {
       bust: 90,
@@ -54,8 +48,6 @@ export const femaleBodyTypes = [
       hips: 100,
       shoulders: 90,
       bicep: 29,
-      neck: 32.5,
-      calf: 37,
     },
   },
   {
@@ -68,8 +60,6 @@ export const femaleBodyTypes = [
       hips: { min: 88, max: 98 }, // Similar to bust
       shoulders: { min: 88, max: 98 },
       bicep: { min: 28, max: 32 },
-      neck: { min: 32, max: 35 },
-      calf: { min: 34, max: 38 },
     },
     example: {
       bust: 93,
@@ -77,8 +67,6 @@ export const femaleBodyTypes = [
       hips: 93,
       shoulders: 93,
       bicep: 30,
-      neck: 33.5,
-      calf: 36,
     },
   },
   {
@@ -91,8 +79,6 @@ export const femaleBodyTypes = [
       hips: { min: 85, max: 95 }, // Narrower than bust
       shoulders: { min: 95, max: 105 },
       bicep: { min: 29, max: 33 },
-      neck: { min: 33, max: 36 },
-      calf: { min: 35, max: 39 },
     },
     example: {
       bust: 100,
@@ -100,8 +86,6 @@ export const femaleBodyTypes = [
       hips: 90,
       shoulders: 100,
       bicep: 31,
-      neck: 34.5,
-      calf: 37,
     },
   },
 ];
@@ -119,16 +103,12 @@ export const maleBodyTypes = [
       waist: { min: 80, max: 90 },
       shoulders: { min: 115, max: 125 },
       bicep: { min: 35, max: 40 },
-      neck: { min: 40, max: 43 },
-      calf: { min: 38, max: 42 },
     },
     example: {
       chest: 110,
       waist: 85,
       shoulders: 120,
       bicep: 37.5,
-      neck: 41.5,
-      calf: 40,
     },
   },
   {
@@ -140,16 +120,12 @@ export const maleBodyTypes = [
       waist: { min: 70, max: 80 },
       shoulders: { min: 95, max: 105 },
       bicep: { min: 28, max: 32 },
-      neck: { min: 35, max: 38 },
-      calf: { min: 32, max: 36 },
     },
     example: {
       chest: 90,
       waist: 75,
       shoulders: 100,
       bicep: 30,
-      neck: 36.5,
-      calf: 34,
     },
   },
   {
@@ -161,16 +137,12 @@ export const maleBodyTypes = [
       waist: { min: 90, max: 100 },
       shoulders: { min: 110, max: 120 },
       bicep: { min: 33, max: 38 },
-      neck: { min: 38, max: 41 },
-      calf: { min: 36, max: 40 },
     },
     example: {
       chest: 105,
       waist: 95,
       shoulders: 115,
       bicep: 35.5,
-      neck: 39.5,
-      calf: 38,
     },
   },
 ];
@@ -197,12 +169,6 @@ export function guessFemaleType(m) {
     if (m.bicep != null && measurementsRange.bicep) {
       if (isWithinRange(m.bicep, measurementsRange.bicep.min, measurementsRange.bicep.max)) score += 1;
     }
-    if (m.neck != null && measurementsRange.neck) {
-      if (isWithinRange(m.neck, measurementsRange.neck.min, measurementsRange.neck.max)) score += 1;
-    }
-    if (m.calf != null && measurementsRange.calf) {
-      if (isWithinRange(m.calf, measurementsRange.calf.min, measurementsRange.calf.max)) score += 1;
-    }
     
     return { id: t.id, label: t.label, score: Number(score.toFixed(3)) };
   });
@@ -227,12 +193,6 @@ export function guessMaleType(m) {
     }
     if (m.bicep != null && measurementsRange.bicep) {
       if (isWithinRange(m.bicep, measurementsRange.bicep.min, measurementsRange.bicep.max)) score += 1;
-    }
-    if (m.neck != null && measurementsRange.neck) {
-      if (isWithinRange(m.neck, measurementsRange.neck.min, measurementsRange.neck.max)) score += 1;
-    }
-    if (m.calf != null && measurementsRange.calf) {
-      if (isWithinRange(m.calf, measurementsRange.calf.min, measurementsRange.calf.max)) score += 1;
     }
     
     return { id: t.id, label: t.label, score: Number(score.toFixed(3)) };
