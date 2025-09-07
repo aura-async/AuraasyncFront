@@ -2490,14 +2490,14 @@ export default function Onboarding() {
               {capturedImages.map((img, index) => (
                 <div
                   key={index}
-                  className="bg-white/20 rounded p-2 text-center text-sm"
+                  className="bg-white/20  rounded p-2 text-center text-sm"
                 >
                   <img
                     src={img}
                     alt={`Image ${index + 1}`}
                     className="w-full h-20 object-cover rounded mb-1"
                   />
-                  Image {index + 1}
+                  Image{index + 1}
                 </div>
               ))}
             </div>
@@ -2654,7 +2654,7 @@ export default function Onboarding() {
                       }
                     }}
                     disabled={!analysisData.body_shape}
-                    className="w-1/2 py-3 rounded-lg bg-[#444141] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#555] transition-all"
+                    className="w-1/2 py-3 px-1 rounded-lg bg-[#444141] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#555] transition-all"
                   >
                     Next
                   </button>
@@ -2731,6 +2731,12 @@ export default function Onboarding() {
 
                     {/* Content Section - Now Below */}
                     <div className="w-full flex flex-col space-y-4">
+                       <button
+                        onClick={handleMobileBodyCaptureClick}
+                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
+                      >
+                        Capture from Web Camera
+                      </button>
                       <button
                         onClick={() => setShowBodyInstructions(true)}
                         className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:bg-[#555555] transition-all"
@@ -2769,12 +2775,7 @@ export default function Onboarding() {
                         </button>
                       </div>
 
-                      <button
-                        onClick={handleMobileBodyCaptureClick}
-                        className="w-full bg-[#444141] text-white py-3 rounded-lg font-semibold hover:from-blue-600 hover:to-purple-700 transition-all"
-                      >
-                        Capture from Web Camera
-                      </button>
+                    
 
                       <button
                         onClick={() => handleManualInput("body_shape")}
@@ -2786,9 +2787,9 @@ export default function Onboarding() {
                       {/* Manual Measurements */}
                       <button
                         onClick={handleManualMeasurements}
-                        className="w-full bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
+                        className="w-full bg-white/10 border border-white/30 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition-colors"
                       >
-                        📏 Insert Measurements Manually
+                         Insert Measurements Manually
                       </button>
 
 
