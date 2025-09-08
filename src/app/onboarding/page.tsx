@@ -1311,29 +1311,7 @@ export default function Onboarding() {
             </div>
           </div>
         )}
-       <div className="flex justify-center gap-4 mt-8">
-                        <button
-                          onClick={() => setCurrentStep(STEPS.BASIC_INFO)}
-                          className="px-8 py-3 w-full rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
-                        >
-                          Back
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (singleMode && singleTarget === 'skin') {
-                              saveSingleModeAndReturn({ skin_tone: analysisData.skin_tone });
-                            } else if (singleMode && singleTarget === 'face') {
-                              saveSingleModeAndReturn({ face_shape: analysisData.face_shape || null });
-                            } else {
-                              handleNext();
-                            }
-                          }}
-                          disabled={singleMode ? (singleTarget === 'skin' ? !analysisData.skin_tone : !analysisData.face_shape) : !analysisData.skin_tone}
-                          className="px-8 py-3 w-full rounded-lg bg-[white]/10 text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:from-blue-600 hover:to-purple-700 transition-all"
-                        >
-                          Next
-                        </button>
-                      </div>
+        <button>Next</button>
       </div>
     );
 
@@ -2157,7 +2135,15 @@ export default function Onboarding() {
     );
 
     // Manual Measurements Component
-    const ManualMeasurementsInput = () => (
+    const ManualMeasurementsInput = () => {
+      const handleNumericInput = (field: string, rawValue: string) => {
+        const normalized = rawValue.replace(/,/g, '.');
+        if (normalized === '' || /^\d*\.?\d*$/.test(normalized)) {
+          updateMeasurement(field, normalized);
+        }
+      };
+
+      return (
       <div className="bg-white/10 backdrop-blur-lg rounded-xl p-6">
         <h3 className="text-xl font-semibold mb-4 text-center">
           Manual Measurements
@@ -2205,9 +2191,10 @@ export default function Onboarding() {
                     Bust ({unit})
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={measurements.bust}
-                    onChange={(e) => updateMeasurement('bust', e.target.value)}
+                    onChange={(e) => handleNumericInput('bust', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                     placeholder="Enter bust measurement"
                   />
@@ -2217,9 +2204,10 @@ export default function Onboarding() {
                     Waist ({unit})
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={measurements.waist}
-                    onChange={(e) => updateMeasurement('waist', e.target.value)}
+                    onChange={(e) => handleNumericInput('waist', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                     placeholder="Enter waist measurement"
                   />
@@ -2229,9 +2217,10 @@ export default function Onboarding() {
                     Hips ({unit})
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={measurements.hips}
-                    onChange={(e) => updateMeasurement('hips', e.target.value)}
+                    onChange={(e) => handleNumericInput('hips', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                     placeholder="Enter hips measurement"
                   />
@@ -2241,9 +2230,10 @@ export default function Onboarding() {
                     Shoulders ({unit})
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={measurements.shoulders}
-                    onChange={(e) => updateMeasurement('shoulders', e.target.value)}
+                    onChange={(e) => handleNumericInput('shoulders', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                     placeholder="Enter shoulders measurement"
                   />
@@ -2259,9 +2249,10 @@ export default function Onboarding() {
                     Chest ({unit})
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={measurements.chest}
-                    onChange={(e) => updateMeasurement('chest', e.target.value)}
+                    onChange={(e) => handleNumericInput('chest', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                     placeholder="Enter chest measurement"
                   />
@@ -2271,9 +2262,10 @@ export default function Onboarding() {
                     Waist ({unit})
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={measurements.waist}
-                    onChange={(e) => updateMeasurement('waist', e.target.value)}
+                    onChange={(e) => handleNumericInput('waist', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                     placeholder="Enter waist measurement"
                   />
@@ -2283,9 +2275,10 @@ export default function Onboarding() {
                     Shoulders ({unit})
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={measurements.shoulders}
-                    onChange={(e) => updateMeasurement('shoulders', e.target.value)}
+                    onChange={(e) => handleNumericInput('shoulders', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                     placeholder="Enter shoulders measurement"
                   />
@@ -2295,9 +2288,10 @@ export default function Onboarding() {
                     Bicep ({unit})
                   </label>
                   <input
-                    type="number"
+                    type="text"
+                    inputMode="decimal"
                     value={measurements.bicep}
-                    onChange={(e) => updateMeasurement('bicep', e.target.value)}
+                    onChange={(e) => handleNumericInput('bicep', e.target.value)}
                     className="w-full px-3 py-2 bg-white/10 border border-white/20 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:border-blue-500"
                     placeholder="Enter bicep measurement"
                   />
@@ -2334,6 +2328,7 @@ export default function Onboarding() {
         </div>
       </div>
     );
+    };
 
     // Manual Input Component
     const BodyShapeManualInput = ({ userData, handleManualSelection }: any) => {
@@ -2471,7 +2466,7 @@ export default function Onboarding() {
         </div>
 
         <p className="text-sm text-gray-300 mb-4">
-          Progress: {progress}% - {capturedImages.length}/3 images captured
+          Progress: {progress}% - {capturedImages.length}
         </p>
 
         {isAutoCapturing && (
@@ -2538,6 +2533,27 @@ export default function Onboarding() {
             </div>
           </div>
         )}
+         <div className="flex justify-between gap-4 mt-6">
+                  <button
+                    onClick={() => setCurrentStep(STEPS.SKIN_FACE_ANALYSIS)}
+                    className="w-1/2 py-3 rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
+                  >
+                    Back
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (singleMode && singleTarget === 'body') {
+                        saveSingleModeAndReturn({ body_shape: analysisData.body_shape || null });
+                      } else {
+                        handleNext();
+                      }
+                    }}
+                    disabled={!analysisData.body_shape}
+                    className="w-1/2 py-3 px-1 rounded-lg bg-[#444141] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#555] transition-all"
+                  >
+                    Next
+                  </button>
+                </div>
       </div>
     );
 
