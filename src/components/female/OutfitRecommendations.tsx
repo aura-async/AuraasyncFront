@@ -32,7 +32,7 @@ const OutfitRecommendations = () => {
     },
     {
       id: 3,
-      image: r2,
+      image: r4,
       label: "Women's Bottomwears",
       caption: "Discover our latest Women's Bottomwear collection",
       featured: false,
@@ -48,7 +48,7 @@ const OutfitRecommendations = () => {
     },
     {
       id: 5,
-      image: r4,
+      image: r2,
       label: "Women's Coats",
       caption: "Discover our latest Women's Coats collection",
       featured: false,
