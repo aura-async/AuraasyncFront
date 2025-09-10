@@ -12,6 +12,7 @@
     "seo:analyze": "npm run build && npm run seo:generate"
   },
   "dependencies": {
+    "@google/generative-ai": "^0.24.1",
     "@radix-ui/react-slot": "^1.2.3",
     "axios": "^1.6.0",
     "chart.js": "^4.5.0",

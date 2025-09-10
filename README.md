@@ -104,6 +104,18 @@ NEXT_PUBLIC_API_URL=http://localhost:8000
 NEXT_PUBLIC_APP_NAME=Auraasync
 ```
 
+## Gemini API setup
+
+1. Create `AuraasyncFront/.env.local` with:
+
+```
+GOOGLE_API_KEY=YOUR_GEMINI_API_KEY
+```
+
+2. Never commit real keys. If a key was shared publicly, rotate it in Google AI Studio.
+
+3. The server route is available at `src/app/api/gemini/route.ts`. The onboarding flow posts captured images there.
+
 ## 📱 Responsive Design
 
 The application is designed to work seamlessly across all devices:

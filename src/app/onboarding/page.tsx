@@ -757,16 +757,7 @@ export default function Onboarding() {
       }
     };
 
-    // Random value generators
-    const getRandomSkinTone = () => {
-      const skinTones = ["Cold", "Warm", "Neutral"];
-      return skinTones[Math.floor(Math.random() * skinTones.length)];
-    };
-
-    const getRandomFaceShape = () => {
-      const faceShapes = ["Round", "Oval", "Square", "Heart", "Diamond", "Oblong"];
-      return faceShapes[Math.floor(Math.random() * faceShapes.length)];
-    };
+    // Removed random value generators. All analyses now use API results or manual input.
 
     // Triggered only from Mobile UI: show 3s preloader, then start camera capture
     const handleMobileCaptureClick = async () => {
@@ -838,25 +829,94 @@ export default function Onboarding() {
     const analyzeImage = async (blob: Blob) => {
       setIsAnalyzing(true);
       try {
-        // Generate random values for both skin tone and face shape after image capture
-        const skinToneResult = getRandomSkinTone();
-        const faceShapeResult = getRandomFaceShape();
-        
-        // Set both random values after image capture
+        // Retry wrapper to handle transient 5xx/429 failures from the API route
+        const fetchWithRetry = async (
+          url: string,
+          options: RequestInit,
+          maxAttempts: number = 3
+        ): Promise<Response> => {
+          const retryable = new Set([408, 429, 500, 502, 503, 504]);
+          let lastErr: any;
+          for (let attempt = 0; attempt < maxAttempts; attempt++) {
+            try {
+              const resp = await fetch(url, options);
+              if (resp.ok || !retryable.has(resp.status)) return resp;
+              const backoff = Math.min(2000, 500 * Math.pow(2, attempt));
+              await new Promise((r) => setTimeout(r, backoff));
+            } catch (e) {
+              lastErr = e;
+              const backoff = Math.min(2000, 500 * Math.pow(2, attempt));
+              await new Promise((r) => setTimeout(r, backoff));
+            }
+          }
+          if (lastErr) throw lastErr;
+          return fetch(url, options);
+        };
+
+        const blobToBase64 = (b: Blob) =>
+          new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const res = (reader.result as string) || "";
+              const base64 = res.split(",")[1] || res;
+              resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(b);
+          });
+
+        const base64 = await blobToBase64(blob);
+
+        const resp = await fetchWithRetry("/api/gemini", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "face_skin",
+            images: [{ base64, mimeType: blob.type || "image/jpeg" }],
+          }),
+        });
+
+        if (!resp.ok) {
+          if (resp.status === 429) {
+            const info = await resp.json().catch(() => ({}));
+            alert(info?.message || "Model quota exceeded. Please wait ~1 minute and retry.");
+            setIsAnalyzing(false);
+            return;
+          }
+          const text = await resp.text().catch(() => "");
+          throw new Error(`Gemini API error: ${resp.status} ${text}`);
+        }
+        const payload = await resp.json();
+        const { face_shape, skin_tone, face_confidence, skin_confidence } = payload.data || {};
+        if (!face_shape || !skin_tone) {
+          throw new Error("Gemini did not return required fields");
+        }
+        // Confidence gate for better accuracy (handle gracefully)
+        if (typeof face_confidence === 'number' && face_confidence < 0.7) {
+          alert("Face not clear enough. Please retake a clearer photo or upload a better image.");
+          setShowUpload(true);
+          setIsAnalyzing(false);
+          return;
+        }
+        if (typeof skin_confidence === 'number' && skin_confidence < 0.7) {
+          alert("Skin not clear enough. Please retake a clearer photo or upload a better image.");
+          setShowUpload(true);
+          setIsAnalyzing(false);
+          return;
+        }
+        const faceShapeResult = face_shape;
+        const skinToneResult = skin_tone;
+
         setAnalysisData((prev) => ({
           ...prev,
           skin_tone: skinToneResult,
-          face_shape: faceShapeResult
+          face_shape: faceShapeResult,
         }));
-        
-        // Use the appropriate result based on current analysis
-        const result = currentAnalysis === "skin_tone" ? skinToneResult : faceShapeResult;
 
-        setAnalysisResults((prev) => [...prev, result]);
+        setAnalysisResults((prev) => [...prev, faceShapeResult]);
 
-        // If we have 3 results, determine final result
         if (analysisResults.length + 1 >= 3) {
-          const finalResults = [...analysisResults, result];
+          const finalResults = [...analysisResults, faceShapeResult];
           const mostCommon = finalResults.reduce((acc, val) => {
             acc[val] = (acc[val] || 0) + 1;
             return acc;
@@ -873,11 +933,13 @@ export default function Onboarding() {
           setCurrentAnalysis(null);
           setProgress(100);
         }
-      } catch (error) {
-        console.error("Analysis error:", error);
-        // Add a default result if analysis fails
-        const defaultResult = currentAnalysis === "skin_tone" ? "Warm" : "Oval";
-        setAnalysisResults((prev) => [...prev, defaultResult]);
+      } catch (error: any) {
+        console.error("Analysis error (face/skin):", error);
+        alert(
+          "We couldn't clearly detect your face. Please retake a clearer photo (good lighting, face centered) or upload a better image."
+        );
+        setShowUpload(true);
+        setShowManualInput(false);
       } finally {
         setIsAnalyzing(false);
       }
@@ -912,24 +974,46 @@ export default function Onboarding() {
       setUploadedImage(imageUrl);
       setProgress(50);
 
-      // Generate random values for both skin tone and face shape after file upload
       try {
         setIsAnalyzing(true);
-        
-        // Generate random values for both skin tone and face shape
-        const skinToneResult = getRandomSkinTone();
-        const faceShapeResult = getRandomFaceShape();
-        
-        // Set both random values after file upload
-        setAnalysisData((prev) => ({
-          ...prev,
-          skin_tone: skinToneResult,
-          face_shape: faceShapeResult
-        }));
-        
-        // Use the appropriate result based on current analysis
-        const result = currentAnalysis === "skin_tone" ? skinToneResult : faceShapeResult;
+        // Convert file to base64
+        const toBase64 = (b: Blob) =>
+          new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const res = (reader.result as string) || "";
+              const base64 = res.split(",")[1] || res;
+              resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(b);
+          });
 
+        const base64 = await toBase64(file);
+
+        // Call backend Gemini route
+        const resp = await fetch("/api/gemini", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "face_skin",
+            images: [{ base64, mimeType: file.type || "image/jpeg" }],
+          }),
+        });
+
+        if (!resp.ok) {
+          throw new Error(`Gemini API error: ${resp.status}`);
+        }
+        const payload = await resp.json();
+        const { face_shape, skin_tone } = payload.data || {};
+        if (!face_shape || !skin_tone) {
+          throw new Error("Gemini did not return required fields");
+        }
+
+        // Update both values from real response
+        setAnalysisData((prev) => ({ ...prev, skin_tone, face_shape }));
+
+        const result = currentAnalysis === "skin_tone" ? skin_tone : face_shape;
         setAnalysisResults([result]);
         setCurrentAnalysis(null);
         setProgress(100);
@@ -1311,7 +1395,29 @@ export default function Onboarding() {
             </div>
           </div>
         )}
-        <button>Next</button>
+        <div className="mt-6 flex gap-4">
+          <button
+            onClick={() => setCurrentStep(STEPS.BASIC_INFO)}
+            className="px-6 py-2 rounded-lg border-2 border-white/30 bg-white/10 text-white hover:border-white/50 transition-colors"
+          >
+            Back
+          </button>
+          <button
+            onClick={() => {
+              if (singleMode && singleTarget === 'face') {
+                saveSingleModeAndReturn({ face_shape: analysisData.face_shape || undefined });
+              } else if (singleMode && singleTarget === 'skin') {
+                saveSingleModeAndReturn({ skin_tone: analysisData.skin_tone || undefined });
+              } else {
+                handleNext();
+              }
+            }}
+            disabled={singleMode ? (singleTarget === 'skin' ? !analysisData.skin_tone : !analysisData.face_shape) : !analysisData.skin_tone}
+            className="px-6 py-2 rounded-lg bg-[#444141] text-white font-semibold disabled:opacity-50 disabled:cursor-not-allowed hover:bg-[#555] transition-all"
+          >
+            Next
+          </button>
+        </div>
       </div>
     );
 
@@ -1856,13 +1962,7 @@ export default function Onboarding() {
       }
     };
 
-    // Random body type generator
-    const getRandomBodyType = () => {
-      const bodyTypes = userData.gender === "female" 
-        ? ["Hourglass", "Rectangle", "Inverted Triangle", "Apple", "Pear"]
-        : ["Mesomorph", "Ectomorph", "Endomorph", "Trapezoid"];
-      return bodyTypes[Math.floor(Math.random() * bodyTypes.length)];
-    };
+    // Removed random body type generator. Body analysis uses API results or manual input.
 
     // Triggered only from Mobile UI for body: show 2s preloader, then start camera capture
     const handleMobileBodyCaptureClick = async () => {
@@ -1932,20 +2032,59 @@ export default function Onboarding() {
     const analyzeImage = async (blob: Blob) => {
       setIsAnalyzing(true);
       try {
-        // Generate random body type only after image capture
-        const result = getRandomBodyType();
+        const blobToBase64 = (b: Blob) =>
+          new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const res = (reader.result as string) || "";
+              const base64 = res.split(",")[1] || res;
+              resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(b);
+          });
 
-        console.log("Body analysis using random value:", result);
-        
-        // Set the random value after image capture
+        const base64 = await blobToBase64(blob);
+
+        const resp = await fetch("/api/gemini", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "body_shape",
+            gender: userData.gender,
+            images: [{ base64, mimeType: blob.type || "image/jpeg" }],
+          }),
+        });
+
+        if (!resp.ok) {
+          if (resp.status === 429) {
+            const info = await resp.json().catch(() => ({}));
+            alert(info?.message || "Model quota exceeded. Please wait ~1 minute and retry.");
+            setIsAnalyzing(false);
+            return;
+          }
+          throw new Error(`Gemini API error: ${resp.status}`);
+        }
+        const payload = await resp.json();
+        const { body_shape, body_confidence } = payload.data || {};
+        if (!body_shape) {
+          throw new Error("Gemini did not return body_shape");
+        }
+        if (typeof body_confidence === 'number' && body_confidence < 0.7) {
+          alert("Body not clear enough. Please retake a full-body photo or upload a better image.");
+          setShowUpload(true);
+          setIsAnalyzing(false);
+          return;
+        }
+        const result = body_shape;
+
         setAnalysisData((prev) => ({
           ...prev,
-          body_shape: result
+          body_shape: result,
         }));
 
         setAnalysisResults((prev) => [...prev, result]);
 
-        // If we have 3 results, determine final result
         if (analysisResults.length + 1 >= 3) {
           const finalResults = [...analysisResults, result];
           const mostCommon = finalResults.reduce((acc, val) => {
@@ -1964,12 +2103,13 @@ export default function Onboarding() {
           setCurrentAnalysis(null);
           setProgress(100);
         }
-      } catch (error) {
-        console.error("Analysis error:", error);
-        // Add a default result if analysis fails
-        const defaultResult =
-          userData.gender === "female" ? "Hourglass" : "Mesomorph";
-        setAnalysisResults((prev) => [...prev, defaultResult]);
+      } catch (error: any) {
+        console.error("Analysis error (body):", error);
+        alert(
+          "We couldn't clearly detect your body shape. Please retake a full-body photo (standing, good lighting) or upload a better image."
+        );
+        setShowUpload(true);
+        setShowManualInput(false);
       } finally {
         setIsAnalyzing(false);
       }
@@ -2000,17 +2140,51 @@ export default function Onboarding() {
       setUploadedImage(imageUrl);
       setProgress(50);
 
-      // Generate random body type after file upload
       try {
         setIsAnalyzing(true);
-        
-        // Generate random body type
-        const result = getRandomBodyType();
+        // Convert file to base64
+        const toBase64 = (b: Blob) =>
+          new Promise<string>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+              const res = (reader.result as string) || "";
+              const base64 = res.split(",")[1] || res;
+              resolve(base64);
+            };
+            reader.onerror = reject;
+            reader.readAsDataURL(b);
+          });
 
-        console.log("Body analysis using random value:", result);
+        const base64 = await toBase64(file);
 
-        setAnalysisResults([result]);
-        setAnalysisData((prev) => ({ ...prev, [currentAnalysis!]: result }));
+        // Call backend Gemini route for body shape
+        const resp = await fetch("/api/gemini", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            mode: "body_shape",
+            gender: userData.gender,
+            images: [{ base64, mimeType: file.type || "image/jpeg" }],
+          }),
+        });
+
+        if (!resp.ok) {
+          if (resp.status === 429) {
+            const info = await resp.json().catch(() => ({}));
+            alert(info?.message || "Model quota exceeded. Please wait ~1 minute and retry.");
+            setIsAnalyzing(false);
+            return;
+          }
+          throw new Error(`Gemini API error: ${resp.status}`);
+        }
+        const payload = await resp.json();
+        const { body_shape } = payload.data || {};
+        if (!body_shape) {
+          throw new Error("Gemini did not return body_shape");
+        }
+
+        setAnalysisResults([body_shape]);
+        setAnalysisData((prev) => ({ ...prev, [currentAnalysis!]: body_shape }));
         setCurrentAnalysis(null);
         setProgress(100);
         setShowUpload(false);
@@ -2507,14 +2681,14 @@ export default function Onboarding() {
               {capturedImages.map((img, index) => (
                 <div
                   key={index}
-                  className="bg-white/20  rounded p-2 text-center text-sm"
+                  className="bg-white/20 rounded p-2 text-center text-sm"
                 >
                   <img
                     src={img}
                     alt={`Image ${index + 1}`}
                     className="w-full h-20 object-cover rounded mb-1"
                   />
-                  Image{index + 1}
+                  Image {index + 1}
                 </div>
               ))}
             </div>
@@ -2559,7 +2733,7 @@ export default function Onboarding() {
 
     return (
       <>
-        {/* Desktop */}
+        {/**desktop */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}

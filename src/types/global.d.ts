@@ -45,6 +45,7 @@ declare global {
       GOOGLE_CLIENT_SECRET: string;
       NEXTAUTH_SECRET: string;
       NEXTAUTH_URL: string;
+      GOOGLE_API_KEY?: string;
     }
   }
 }
