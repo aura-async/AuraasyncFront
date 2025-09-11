@@ -41,8 +41,8 @@ function validateImage(base64: string, mimeType: string): { valid: boolean; erro
 	return { valid: true };
 }
 
-// Compress image to reduce token usage while maintaining quality for body analysis
-async function compressImage(base64: string, mimeType: string, maxSizeKB: number = 100): Promise<string> {
+// Compress image to reduce token usage while maintaining quality for analysis
+async function compressImage(base64: string, mimeType: string, maxSizeKB: number = 80, analysisMode?: string): Promise<string> {
 	try {
 		// Convert base64 to blob
 		const byteCharacters = atob(base64);
@@ -70,8 +70,8 @@ async function compressImage(base64: string, mimeType: string, maxSizeKB: number
 			img.src = `data:${mimeType};base64,${base64}`;
 		});
 		
-		// Calculate new dimensions (max 500px for optimal accuracy vs tokens)
-		const maxDimension = 500;
+		// Calculate new dimensions (optimized for accuracy vs cost)
+		const maxDimension = analysisMode === "face_skin" ? 400 : 500; // Reduced for lower token usage
 		let { width, height } = img;
 		if (width > height) {
 			if (width > maxDimension) {
@@ -90,7 +90,7 @@ async function compressImage(base64: string, mimeType: string, maxSizeKB: number
 		ctx.drawImage(img, 0, 0, width, height);
 		
 		// Convert back to base64 with compression (optimized for accuracy vs tokens)
-		const quality = 0.9;
+		const quality = 0.7; // Reduced quality for lower token usage
 		const compressedDataUrl = canvas.toDataURL('image/jpeg', quality);
 		const compressedBase64 = compressedDataUrl.split(',')[1];
 		
@@ -199,6 +199,14 @@ export async function POST(req: Request) {
 			);
 		}
 		
+		// Additional validation for body analysis
+		if (mode === "body_shape" && images.length > 1) {
+			return NextResponse.json(
+				{ error: "Body analysis requires exactly 1 image for accurate measurement" },
+				{ status: 400 }
+			);
+		}
+		
 		// Validate gender if provided
 		if (gender && !['male', 'female'].includes(gender)) {
 			return NextResponse.json(
@@ -216,11 +224,15 @@ export async function POST(req: Request) {
 		}
 
 		const genAI = new GoogleGenerativeAI(apiKey);
-		const primaryModel = process.env.GEMINI_MODEL || "gemini-2.5-flash-lite";
+		// Use the most cost-effective model by default, with fallbacks
+		// For body analysis, use a more capable model for better accuracy
+		const primaryModel = mode === "body_shape" 
+			? (process.env.GEMINI_MODEL || "gemini-2.5-flash")
+			: (process.env.GEMINI_MODEL || "gemini-2.5-flash-lite");
 		let model = genAI.getGenerativeModel({ model: primaryModel });
-		const fallbackModels = ["gemini-2.5-flash", "gemini-1.5-flash"].filter(
-			(m) => m !== primaryModel
-		);
+		const fallbackModels = mode === "body_shape"
+			? ["gemini-1.5-flash", "gemini-2.5-flash-lite"].filter(m => m !== primaryModel)
+			: ["gemini-2.5-flash", "gemini-1.5-flash"].filter(m => m !== primaryModel);
 
 		// Validate and compress images
 		const imageValidation = images
@@ -243,7 +255,7 @@ export async function POST(req: Request) {
 			imageValidation
 				.filter((p) => p.base64 && p.validation.valid)
 				.map(async (p) => ({
-					base64: await compressImage(p.base64, p.mimeType),
+					base64: await compressImage(p.base64, p.mimeType, 50, mode), // Reduced from 80KB to 50KB
 					mimeType: p.mimeType
 				}))
 		);
@@ -263,12 +275,14 @@ export async function POST(req: Request) {
 		let responseSchema: any | undefined;
 		if (mode === "face_skin") {
 			systemPrompt = [
-				"Face analysis:",
-				"Shape: [Oval, Round, Square, Heart, Diamond, Oblong]",
-				"Tone: [Warm, Cool, Neutral]",
-				"Confidence 0-1: face_confidence, skin_confidence",
-				"If unclear: {\"error\": \"face_not_detected\"}.",
-				"JSON: face_shape, skin_tone, face_confidence, skin_confidence.",
+				"Analyze face shape and skin tone:",
+				"",
+				"Face shapes: Oval (1.5x length), Round (equal), Square (angular), Heart (wide forehead), Diamond (wide cheeks), Oblong (long)",
+				"Skin tones: Warm (golden), Cool (pink/blue), Neutral (balanced)",
+				"",
+				"Requirements: Clear face, good lighting. If unclear: {\"error\": \"face_not_detected\"} or {\"error\": \"skin_not_detected\"}",
+				"",
+				"Return JSON: face_shape, skin_tone, face_confidence, skin_confidence",
 			].join("\n");
 			responseSchema = {
 				type: "object",
@@ -278,50 +292,55 @@ export async function POST(req: Request) {
 					face_confidence: { type: "number", minimum: 0, maximum: 1 },
 					skin_confidence: { type: "number", minimum: 0, maximum: 1 },
 				},
-				required: [],
+				required: ["face_shape", "skin_tone", "face_confidence", "skin_confidence"],
 			};
 		} else if (mode === "body_shape") {
 			const genderHint = gender ? ` (${gender})` : "";
 			
-			// Gender-specific body types and descriptions
+			// Gender-specific body types and detailed descriptions
 			let bodyTypes: string[] = [];
 			let bodyDescriptions: string[] = [];
 			
 			if (gender === "male") {
 				bodyTypes = ["Ectomorph", "Mesomorph", "Endomorph", "Rectangle", "Inverted Triangle"];
 				bodyDescriptions = [
-					"Ectomorph: lean, narrow shoulders",
-					"Mesomorph: athletic, broad shoulders",
-					"Endomorph: wider frame",
-					"Rectangle: straight frame",
-					"Inverted Triangle: broad shoulders, narrow waist"
+					"Ectomorph: Lean, narrow shoulders, minimal muscle",
+					"Mesomorph: Athletic, broad shoulders, V-shaped",
+					"Endomorph: Wider frame, broader waist, rounder",
+					"Rectangle: Straight frame, shoulders≈waist≈hips",
+					"Inverted Triangle: Broad shoulders, narrow waist"
 				];
 			} else if (gender === "female") {
 				bodyTypes = ["Hourglass", "Rectangle", "Triangle", "Apple", "Pear"];
 				bodyDescriptions = [
-					"Hourglass: shoulders=hips, defined waist",
-					"Rectangle: shoulders≈waist≈hips",
-					"Triangle: narrow shoulders, wider hips",
-					"Apple: wider midsection, narrow hips",
-					"Pear: narrow shoulders, wider hips"
+					"Hourglass: Shoulders≈hips, defined waist",
+					"Rectangle: Shoulders≈waist≈hips, straight",
+					"Triangle: Narrow shoulders, wider hips",
+					"Apple: Broader shoulders, narrower hips",
+					"Pear: Narrow shoulders, wider hips"
 				];
 			} else {
 				bodyTypes = ["Hourglass", "Rectangle", "Triangle", "Apple", "Pear"];
 				bodyDescriptions = [
-					"Hourglass: shoulders=hips, defined waist",
-					"Rectangle: shoulders≈waist≈hips",
-					"Triangle: narrow shoulders, wider hips",
-					"Apple: wider midsection, narrow hips",
-					"Pear: narrow shoulders, wider hips"
+					"Hourglass: Shoulders≈hips, defined waist",
+					"Rectangle: Shoulders≈waist≈hips, straight",
+					"Triangle: Narrow shoulders, wider hips",
+					"Apple: Broader shoulders, narrower hips",
+					"Pear: Narrow shoulders, wider hips"
 				];
 			}
 			
 			systemPrompt = [
-				`Body shape${genderHint}:`,
-				"Shoulders, waist, hips:",
+				`Analyze body shape${genderHint}:`,
+				"",
+				//
+				"",
+				"Measure: shoulder width, waist width, hip width. Calculate ratios.",
+				"",
+				"Body types:",
 				...bodyDescriptions,
-				"Standing, full body only. If unclear: {\"error\": \"body_not_detected\"}.",
-				"JSON: body_shape, body_confidence.",
+				"",
+				"Return JSON: body_shape, body_confidence (0.0-1.0, min 0.7)",
 			].join("\n");
 			
 			responseSchema = {
@@ -330,7 +349,7 @@ export async function POST(req: Request) {
 					body_shape: { type: "string", enum: bodyTypes },
 					body_confidence: { type: "number", minimum: 0, maximum: 1 },
 				},
-				required: ["body_shape"],
+				required: ["body_shape", "body_confidence"],
 			};
 		} else {
 			return NextResponse.json(
@@ -352,8 +371,8 @@ export async function POST(req: Request) {
 							{ role: "user", parts: [{ text: systemPrompt }, ...imageParts] },
 						],
 						generationConfig: {
-							temperature: 0, // Zero for maximum consistency
-							topK: 1,
+							temperature: mode === "body_shape" ? 0.1 : 0, // Slight randomness for body analysis to avoid overfitting
+							topK: mode === "body_shape" ? 3 : 1, // More options for body analysis
 							topP: 0.95, // High topP for better accuracy
 							responseMimeType: responseSchema ? "application/json" : undefined,
 							responseSchema: responseSchema,
@@ -372,8 +391,8 @@ export async function POST(req: Request) {
 										{ role: "user", parts: [{ text: systemPrompt }, ...imageParts] },
 									],
 								generationConfig: {
-									temperature: 0,
-									topK: 1,
+									temperature: mode === "body_shape" ? 0.1 : 0,
+									topK: mode === "body_shape" ? 3 : 1,
 									topP: 0.95,
 									responseMimeType: responseSchema ? "application/json" : undefined,
 									responseSchema: responseSchema,
@@ -466,7 +485,7 @@ export async function POST(req: Request) {
 		}
 
 		// Handle explicit not-detected signals from model
-		if (parsed?.error === "face_not_detected") {
+		if (parsed?.error === "face_not_detected" || parsed?.error === "skin_not_detected") {
 			return NextResponse.json({ error: "face_not_detected" }, { status: 422 });
 		}
 		if (parsed?.error === "body_not_detected") {
@@ -494,9 +513,20 @@ export async function POST(req: Request) {
 		if (normalized.face_shape) normalized.face_shape = normalize(normalized.face_shape);
 		if (normalized.skin_tone) normalized.skin_tone = normalize(normalized.skin_tone);
 		if (normalized.body_shape) normalized.body_shape = normalize(normalized.body_shape);
-		// Enforce confidence threshold for body (optimized for accuracy)
-		if (typeof normalized.body_confidence === "number" && normalized.body_confidence < 0.3) {
-			return NextResponse.json({ error: "body_not_detected" }, { status: 422 });
+		// Enforce confidence thresholds for better accuracy
+		if (mode === "face_skin") {
+			// Face/skin analysis confidence thresholds
+			if (typeof normalized.face_confidence === "number" && normalized.face_confidence < 0.5) {
+				return NextResponse.json({ error: "face_not_detected" }, { status: 422 });
+			}
+			if (typeof normalized.skin_confidence === "number" && normalized.skin_confidence < 0.5) {
+				return NextResponse.json({ error: "skin_not_detected" }, { status: 422 });
+			}
+		} else if (mode === "body_shape") {
+			// Body analysis confidence threshold - stricter for better accuracy
+			if (typeof normalized.body_confidence === "number" && normalized.body_confidence < 0.7) {
+				return NextResponse.json({ error: "body_not_detected" }, { status: 422 });
+			}
 		}
 
 		// Save to cache for 5 minutes, keep map size reasonable (~50)

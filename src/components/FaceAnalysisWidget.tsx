@@ -37,7 +37,19 @@ const FaceAnalysisWidget: React.FC<FaceAnalysisWidgetProps> = ({ onComplete }) =
         body: formData,
       });
       clearTimeout(timeoutId);
-      if (!res.ok) throw new Error('Failed to analyze image');
+      
+      if (!res.ok) {
+        if (res.status === 422) {
+          const errorData = await res.json();
+          if (errorData.error === 'face_not_detected') {
+            throw new Error('Face not clearly visible. Please ensure your face is well-lit and clearly visible in the image.');
+          } else if (errorData.error === 'skin_not_detected') {
+            throw new Error('Skin tone not clearly visible. Please ensure good lighting and clear skin visibility.');
+          }
+        }
+        throw new Error('Failed to analyze image');
+      }
+      
       const data = await res.json();
       setResult(data.face_shape || 'Unknown');
     } catch (err: any) {
@@ -126,7 +138,19 @@ const FaceAnalysisWidget: React.FC<FaceAnalysisWidgetProps> = ({ onComplete }) =
                 body: formData,
               });
               clearTimeout(timeoutId);
-              if (!res.ok) throw new Error('Failed to analyze image');
+              
+              if (!res.ok) {
+                if (res.status === 422) {
+                  const errorData = await res.json();
+                  if (errorData.error === 'face_not_detected') {
+                    throw new Error('Face not clearly visible. Please ensure your face is well-lit and clearly visible in the image.');
+                  } else if (errorData.error === 'skin_not_detected') {
+                    throw new Error('Skin tone not clearly visible. Please ensure good lighting and clear skin visibility.');
+                  }
+                }
+                throw new Error('Failed to analyze image');
+              }
+              
               const data = await res.json();
               setResult(data.face_shape || 'Unknown');
             } catch (err: any) {

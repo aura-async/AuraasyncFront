@@ -91,7 +91,16 @@ export default function Onboarding() {
   const searchParams = typeof window !== 'undefined' ? new URLSearchParams(window.location.search) : null;
   const singleMode = searchParams?.get('mode') === 'single';
   const singleTarget = (searchParams?.get('target') as 'skin' | 'face' | 'body' | 'personality' | null) || null;
-  const [currentStep, setCurrentStep] = useState<StepType>(STEPS.LOGIN);
+   // Initialize step immediately based on query to avoid flashing the login step in single mode
+  const initialStep: StepType = (() => {
+    if (singleMode) {
+      if (singleTarget === 'skin' || singleTarget === 'face') return STEPS.SKIN_FACE_ANALYSIS;
+      if (singleTarget === 'body') return STEPS.BODY_ANALYSIS;
+      if (singleTarget === 'personality') return STEPS.PERSONALITY_ANALYSIS;
+    }
+    return STEPS.LOGIN;
+  })();
+  const [currentStep, setCurrentStep] = useState<StepType>(initialStep);
   const [userData, setUserDataState] = useState<UserData>({
     email: "",
     name: "",
@@ -892,13 +901,13 @@ export default function Onboarding() {
           throw new Error("Gemini did not return required fields");
         }
         // Confidence gate for better accuracy (handle gracefully)
-        if (typeof face_confidence === 'number' && face_confidence < 0.7) {
+        if (typeof face_confidence === 'number' && face_confidence < 0.55) {
           alert("Face not clear enough. Please retake a clearer photo or upload a better image.");
           setShowUpload(true);
           setIsAnalyzing(false);
           return;
         }
-        if (typeof skin_confidence === 'number' && skin_confidence < 0.7) {
+        if (typeof skin_confidence === 'number' && skin_confidence < 0.55) {
           alert("Skin not clear enough. Please retake a clearer photo or upload a better image.");
           setShowUpload(true);
           setIsAnalyzing(false);
@@ -3487,7 +3496,6 @@ export default function Onboarding() {
           className="min-h-screen md:hidden flex items-center justify-center bg-[#251F1E]"
         >
           <div className="text-center text-white p-8">
-            <ProgressBar currentStep={STEPS.COMPLETE} />
             <div className="text-4xl flex gap-4 mb-6 justify-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
