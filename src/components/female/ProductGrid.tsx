@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useSearchParams, usePathname, useRouter } from 'next/navigation';
 
 interface Product {
     keyword: string;
@@ -23,11 +24,19 @@ interface ProductGridProps {
 
 const ProductGrid = ({ occasionData }: ProductGridProps) => {
     const [products, setProducts] = useState<Product[]>([]);
+    const [baseProducts, setBaseProducts] = useState<Product[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+    const [sort, setSort] = useState<'relevant' | 'price-asc' | 'price-desc'>('relevant');
+
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
+    const router = useRouter();
 
     useEffect(() => {
         if (occasionData) {
+            const initialSort = (searchParams?.get('sort') || 'relevant') as 'relevant' | 'price-asc' | 'price-desc';
+            setSort(initialSort);
             loadOccasionData();
         } else {
             // If no occasion data provided, show empty state or default content
@@ -51,9 +60,10 @@ const ProductGrid = ({ occasionData }: ProductGridProps) => {
                 throw new Error('No products found for this occasion');
             }
 
-            // Shuffle the products for random display
+            // Shuffle the products for random display (base order for "relevant")
             const shuffled = shuffleArray([...allProducts]);
-            setProducts(shuffled);
+            setBaseProducts(shuffled);
+            setProducts(applySortToList(shuffled, sort));
 
         } catch (err) {
             console.error('Error loading occasion data:', err);
@@ -70,6 +80,41 @@ const ProductGrid = ({ occasionData }: ProductGridProps) => {
             [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
         }
         return shuffled;
+    };
+
+    const parsePrice = (priceText: string): number => {
+        if (!priceText) return 0;
+        const cleaned = priceText.replace(/[^0-9.]/g, '');
+        const value = parseFloat(cleaned);
+        return isNaN(value) ? 0 : value;
+    };
+
+    const applySortToList = (list: Product[], sortKey: 'relevant' | 'price-asc' | 'price-desc'): Product[] => {
+        if (sortKey === 'relevant') return list;
+        const withNumericPrice = [...list].map(p => ({ ...p, __price: parsePrice(p.price) as number }));
+        withNumericPrice.sort((a, b) => {
+            if (sortKey === 'price-asc') return (a.__price as number) - (b.__price as number);
+            return (b.__price as number) - (a.__price as number);
+        });
+        return withNumericPrice.map((p) => {
+            const { __price, ...rest } = p as unknown as Product & { __price?: number };
+            return rest as Product;
+        });
+    };
+
+    const handleSortChange = (value: 'relevant' | 'price-asc' | 'price-desc') => {
+        setSort(value);
+        const params = new URLSearchParams(searchParams?.toString());
+        if (value === 'relevant') {
+            params.delete('sort');
+        } else {
+            params.set('sort', value);
+        }
+        const query = params.toString();
+        const url = query ? `${pathname}?${query}` : `${pathname}`;
+        router.replace(url);
+
+        setProducts(applySortToList(baseProducts, value));
     };
 
     // If no occasion data is provided, show a default or empty state
@@ -142,11 +187,23 @@ const ProductGrid = ({ occasionData }: ProductGridProps) => {
             {/* Product Grid */}
             <div className="px-4 sm:px-6 lg:px-8">
                 <div className="max-w-7xl mx-auto">
-                    {/* Products Count */}
-                    <div className="mb-6 text-center">
+                    {/* Toolbar */}
+                    <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                         <p className="text-gray-300">
-                            Found <span className="text-blue-400 font-semibold">{products.length}</span> products for {occasionData.name}
+                            Found <span className="text-blue-400 font-semibold">{baseProducts.length}</span> products for {occasionData.name}
                         </p>
+                        <div className="flex items-center gap-3">
+                            <span className="text-sm text-gray-300">Sort by</span>
+                            <select
+                                value={sort}
+                                onChange={(e) => handleSortChange(e.target.value as 'relevant' | 'price-asc' | 'price-desc')}
+                                className="bg-gray-700 text-white text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            >
+                                <option value="relevant">Relevant</option>
+                                <option value="price-desc">Price: High to Low</option>
+                                <option value="price-asc">Price: Low to High</option>
+                            </select>
+                        </div>
                     </div>
                     
                     <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">

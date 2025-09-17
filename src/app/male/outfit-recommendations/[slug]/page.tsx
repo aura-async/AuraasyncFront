@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams, usePathname } from 'next/navigation';
 import GenderNavbar from '../../../../components/GenderNavbar';
 import BottomNavigation from '@/components/male/BottomNavigation';
 
@@ -68,6 +68,10 @@ export default function OutfitRecommendationsPage() {
     const [currentPage, setCurrentPage] = useState(1);
     const [totalPages, setTotalPages] = useState(1);
     const [shuffledProducts, setShuffledProducts] = useState<Product[]>([]);
+    const [sort, setSort] = useState<'relevant' | 'price-asc' | 'price-desc'>('relevant');
+
+    const searchParams = useSearchParams();
+    const pathname = usePathname();
 
     const productsPerPage = 12;
     const category = CATEGORIES[slug];
@@ -79,10 +83,12 @@ export default function OutfitRecommendationsPage() {
             return;
         }
 
-        loadCategoryData();
+        const initialSort = (searchParams?.get('sort') || 'relevant') as 'relevant' | 'price-asc' | 'price-desc';
+        setSort(initialSort);
+        loadCategoryData(initialSort);
     }, [slug]);
 
-    const loadCategoryData = async () => {
+    const loadCategoryData = async (initialSort?: 'relevant' | 'price-asc' | 'price-desc') => {
         setLoading(true);
         setError(null);
 
@@ -95,7 +101,7 @@ export default function OutfitRecommendationsPage() {
                 throw new Error('No products found in this category');
             }
 
-            // Shuffle the products for random display
+            // Shuffle the products for random display (base order for "relevant")
             const shuffled = shuffleArray([...allProducts]);
             setShuffledProducts(shuffled);
 
@@ -103,9 +109,10 @@ export default function OutfitRecommendationsPage() {
             const total = Math.ceil(shuffled.length / productsPerPage);
             setTotalPages(total);
 
-            // Set initial page
+            // Set initial page and apply initial sort
             setCurrentPage(1);
-            updateDisplayedProducts(shuffled, 1);
+            const base = applySortToList(shuffled, initialSort || sort);
+            updateDisplayedProducts(base, 1);
 
         } catch (err) {
             console.error('Error loading category data:', err);
@@ -131,9 +138,51 @@ export default function OutfitRecommendationsPage() {
         setProducts(pageProducts);
     };
 
+    const parsePrice = (priceText: string): number => {
+        if (!priceText) return 0;
+        const cleaned = priceText.replace(/[^0-9.]/g, '');
+        const value = parseFloat(cleaned);
+        return isNaN(value) ? 0 : value;
+    };
+
+    const applySortToList = (list: Product[], sortKey: 'relevant' | 'price-asc' | 'price-desc'): Product[] => {
+        if (sortKey === 'relevant') return list;
+        const withNumericPrice = [...list].map(p => ({ ...p, __price: parsePrice(p.price) as number }));
+        withNumericPrice.sort((a, b) => {
+            if (sortKey === 'price-asc') return (a.__price as number) - (b.__price as number);
+            return (b.__price as number) - (a.__price as number);
+        });
+        return withNumericPrice.map((p) => {
+            const { __price, ...rest } = p as unknown as Product & { __price?: number };
+            return rest as Product;
+        });
+    };
+
+    const handleSortChange = (value: 'relevant' | 'price-asc' | 'price-desc') => {
+        setSort(value);
+        const params = new URLSearchParams(searchParams?.toString());
+        if (value === 'relevant') {
+            params.delete('sort');
+        } else {
+            params.set('sort', value);
+        }
+        // Update URL without full navigation
+        const query = params.toString();
+        const url = query ? `${pathname}?${query}` : `${pathname}`;
+        router.replace(url);
+
+        // Recompute pages and reset to first page with sorted list
+        const base = applySortToList(shuffledProducts, value);
+        setCurrentPage(1);
+        const total = Math.ceil(base.length / productsPerPage);
+        setTotalPages(total);
+        updateDisplayedProducts(base, 1);
+    };
+
     const handlePageChange = (page: number) => {
         setCurrentPage(page);
-        updateDisplayedProducts(shuffledProducts, page);
+        const base = applySortToList(shuffledProducts, sort);
+        updateDisplayedProducts(base, page);
         // Scroll to top when page changes
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -230,12 +279,23 @@ export default function OutfitRecommendationsPage() {
                 {/* Products Grid */}
                 {!loading && !error && products.length > 0 && (
                     <>
-                        {/* Products Count */}
-                        {/* Products Count */}
-                        <div className="mb-6 text-center">
+                        {/* Toolbar */}
+                        <div className="mb-6 flex flex-col sm:flex-row items-center justify-between gap-4">
                             <p className="text-gray-300">
                                 Found <span className="text-blue-400 font-semibold">{shuffledProducts.length}</span> products in {category.title}
                             </p>
+                            <div className="flex items-center gap-3">
+                                <span className="text-sm text-gray-300">Sort by</span>
+                                <select
+                                    value={sort}
+                                    onChange={(e) => handleSortChange(e.target.value as 'relevant' | 'price-asc' | 'price-desc')}
+                                    className="bg-gray-700 text-white text-sm rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                >
+                                    <option value="relevant">Relevant</option>
+                                    <option value="price-desc">Price: High to Low</option>
+                                    <option value="price-asc">Price: Low to High</option>
+                                </select>
+                            </div>
                         </div>
 
                         <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mb-8">
