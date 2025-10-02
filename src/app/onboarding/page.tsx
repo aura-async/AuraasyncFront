@@ -191,7 +191,8 @@ export default function Onboarding() {
                 headers: {
                   'Authorization': `Bearer ${idToken}`,
                   'Content-Type': 'application/json'
-                }
+                },
+                withCredentials: true,
               }
             );
 
@@ -269,7 +270,8 @@ export default function Onboarding() {
                 headers: {
                   'Authorization': `Bearer ${idToken}`,
                   'Content-Type': 'application/json'
-                }
+                },
+                withCredentials: true,
               }
             );
 
