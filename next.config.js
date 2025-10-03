@@ -1,22 +1,22 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   // Enable static optimization
-  output: 'standalone',
+  output: "standalone",
 
   // Image optimization
   images: {
     // Next.js 15: images.domains is deprecated; use remotePatterns
     remotePatterns: [
       {
-        protocol: 'https',
-        hostname: 'auraasync.com',
+        protocol: "https",
+        hostname: "auraasync.com",
       },
       {
-        protocol: 'https',
-        hostname: 'www.auraasync.com',
+        protocol: "https",
+        hostname: "www.auraasync.com",
       },
     ],
-    formats: ['image/webp', 'image/avif'],
+    formats: ["image/webp", "image/avif"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
@@ -25,37 +25,37 @@ const nextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)',
+        source: "/(.*)",
         headers: [
           {
-            key: 'X-Frame-Options',
-            value: 'DENY',
+            key: "X-Frame-Options",
+            value: "DENY",
           },
           {
-            key: 'X-Content-Type-Options',
-            value: 'nosniff',
+            key: "X-Content-Type-Options",
+            value: "nosniff",
           },
           {
-            key: 'Referrer-Policy',
-            value: 'origin-when-cross-origin',
+            key: "Referrer-Policy",
+            value: "origin-when-cross-origin",
           },
           {
-            key: 'X-DNS-Prefetch-Control',
-            value: 'on',
+            key: "X-DNS-Prefetch-Control",
+            value: "on",
           },
           {
             // 👇 This fixes the Firebase popup issue
-            key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin-allow-popups',
+            key: "Cross-Origin-Opener-Policy",
+            value: "same-origin-allow-popups",
           },
         ],
       },
       {
-        source: '/sitemap.xml',
+        source: "/sitemap.xml",
         headers: [
           {
-            key: 'Content-Type',
-            value: 'application/xml',
+            key: "Content-Type",
+            value: "application/xml",
           },
         ],
       },
@@ -66,18 +66,18 @@ const nextConfig = {
   async redirects() {
     return [
       {
-        source: '/analysis-flow',
-        destination: '/analysis-v2/force',
+        source: "/analysis-flow",
+        destination: "/analysis-v2/force",
         permanent: true,
       },
       {
-        source: '/home',
-        destination: '/',
+        source: "/home",
+        destination: "/",
         permanent: true,
       },
       {
-        source: '/index',
-        destination: '/',
+        source: "/index",
+        destination: "/",
         permanent: true,
       },
     ];
@@ -85,7 +85,8 @@ const nextConfig = {
 
   // Compiler options
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    // removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: false,
   },
 
   // Experimental features
