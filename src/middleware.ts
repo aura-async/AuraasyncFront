@@ -2,10 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 
 export function middleware(req: NextRequest) {
   const aff = req.nextUrl.searchParams.get("ref");
+  console.log("Middleware triggered for:", req.nextUrl.pathname);
   if (!aff) return NextResponse.next();
 
   const isProd = process.env.NODE_ENV === "production";
   const res = NextResponse.next();
+  console.log("Setting affiliate cookie:", aff, "isProd:", isProd);
 
   console.log(isProd);
   res.cookies.set({
