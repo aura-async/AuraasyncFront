@@ -49,7 +49,7 @@ export function middleware(req: NextRequest) {
 res.cookies.set({
   name: "affiliate_id",
   value: aff.slice(0, 100),
-  httpOnly: true,
+  httpOnly: false,
   sameSite: isProd ? "none" : "lax",  // "none" in prod, "lax" locally
   secure: isProd,                      // true in prod, false locally
   path: "/",
