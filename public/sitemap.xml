@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
-<url><loc>https://auraasync.com/female</loc><lastmod>2025-09-17T08:33:13.635Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>daily</changefreq><priority>1</priority></url>
-<url><loc>https://auraasync.com/dashboard</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/search</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/onboarding</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/signup</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/female/recommendations</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/login</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/faq</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/feedback</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/search-categories</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/male/recommendations</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/hairstyle</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/male</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
-<url><loc>https://auraasync.com/about</loc><lastmod>2025-09-17T08:33:13.637Z</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://auraasync.com/dashboard</loc><lastmod>2025-10-03T05:04:40.974Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com/feedback</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com/about</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>monthly</changefreq><priority>0.8</priority></url>
+<url><loc>https://auraasync.com/female</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com/male/recommendations</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com/faq</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com/male</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com/onboarding</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>daily</changefreq><priority>1</priority></url>
+<url><loc>https://auraasync.com/search-categories</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com/search</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com/female/recommendations</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com/hairstyle</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com/login</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
+<url><loc>https://auraasync.com/signup</loc><lastmod>2025-10-03T05:04:40.976Z</lastmod><changefreq>weekly</changefreq><priority>0.7</priority></url>
 </urlset>
