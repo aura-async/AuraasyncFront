@@ -3,7 +3,8 @@ import { Montserrat, Playfair_Display, Poppins } from "next/font/google";
 import "./globals.css";
 import ConditionalFooter from '../components/ConditionalFooter';
 import FlowController from '../components/FlowController';
-import GoogleAnalytics from '@/components/GoogleAnalytics'
+import GoogleAnalytics from '@/components/GoogleAnalytics';
+import { Suspense } from 'react'
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -108,7 +109,9 @@ export default function RootLayout({
     <html lang="en" className={`${montserrat.variable} ${popin.variable} ${playfair.variable}`}>
       <body className="bg-black text-white flex flex-col min-h-screen">
         {process.env.NODE_ENV === 'production' && (
+          <Suspense fallback={null}>
             <GoogleAnalytics GA_MEASUREMENT_ID={process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID!} />
+          </Suspense>
           )}
         <FlowController>
           <div className="flex-grow">
